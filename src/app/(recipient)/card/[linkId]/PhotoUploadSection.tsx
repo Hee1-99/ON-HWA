@@ -17,16 +17,7 @@ export default function PhotoUploadSection({ folder = "card" }: Props) {
   const inputRef       = useRef<HTMLInputElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
 
-  /* style={{}} / aria expression 없이 명령형으로 진행률 반영 */
-  useEffect(() => {
-    const bar = progressBarRef.current;
-    if (!bar) return;
-    bar.setAttribute("aria-valuenow", String(progress));
-    const fill = bar.querySelector<HTMLDivElement>(".photo-progress-fill");
-    if (fill) fill.style.width = `${progress}%`;
-  }, [progress]);
-
-  const { status, progress, errorMessage, publicUrl, upload, reset } =
+  const { status, progress, errorMessage, upload, reset } =
     useImageUpload({
       bucket: "archives",
       folder,
@@ -35,6 +26,15 @@ export default function PhotoUploadSection({ folder = "card" }: Props) {
         console.log("업로드 완료:", url);
       },
     });
+
+  /* style={{}} / aria expression 없이 명령형으로 진행률 반영 */
+  useEffect(() => {
+    const bar = progressBarRef.current;
+    if (!bar) return;
+    bar.setAttribute("aria-valuenow", String(progress));
+    const fill = bar.querySelector<HTMLDivElement>(".photo-progress-fill");
+    if (fill) fill.style.width = `${progress}%`;
+  }, [progress]);
 
   const isCompressing = status === "compressing";
   const isUploading   = status === "uploading";

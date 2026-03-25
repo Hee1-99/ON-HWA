@@ -2,15 +2,16 @@
 
 import { useRef, useState } from "react";
 import html2canvas from "html2canvas";
-import { Download, Upload, Loader2, Image as ImageIcon } from "lucide-react";
-import { saveArchive } from "@/app/actions/archiveActions";
+import { Download, Loader2, Image as ImageIcon } from "lucide-react";
 
 interface PhotoCardBuilderProps {
   bouquetId: string;
   flowerName: string;
+  bouquetStory: string;
+  imageUrl: string;
 }
 
-export default function PhotoCardBuilder({ bouquetId, flowerName }: PhotoCardBuilderProps) {
+export default function PhotoCardBuilder({ bouquetId: _bouquetId, flowerName, bouquetStory, imageUrl }: PhotoCardBuilderProps) {
   const [photo, setPhoto] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -19,9 +20,7 @@ export default function PhotoCardBuilder({ bouquetId, flowerName }: PhotoCardBui
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setPhoto(reader.result as string);
-      };
+      reader.onloadend = () => setPhoto(reader.result as string);
       reader.readAsDataURL(file);
     }
   };
@@ -29,35 +28,22 @@ export default function PhotoCardBuilder({ bouquetId, flowerName }: PhotoCardBui
   const handleSaveCard = async () => {
     if (!cardRef.current || !photo) return;
     setIsGenerating(true);
-
     try {
-      // 1. Generate Image with html2canvas (scale 2 for retina qual)
-      const canvas = await html2canvas(cardRef.current, { 
+      const canvas = await html2canvas(cardRef.current, {
         scale: 2,
-        useCORS: true, 
-        backgroundColor: "#FFF8F5" 
+        useCORS: true,
+        backgroundColor: "#FFF8F5",
       });
       const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
 
-      // 2. Trigger Device Download
-      const link = document.createElement("a");
-      link.download = `ONHWA_Photocard_${new Date().getTime()}.jpg`;
-      link.href = dataUrl;
-      link.click();
-
-      // 3. Visitor ID 처리 (로컬 스토리지)
-      let visitorId = localStorage.getItem("onhwa_visitor_id");
-      if (!visitorId) {
-        visitorId = "visitor_" + Math.random().toString(36).substring(2, 10);
-        localStorage.setItem("onhwa_visitor_id", visitorId);
-      }
-
-      // 4. Save to Supabase DB
-      const result = await saveArchive(bouquetId, dataUrl, visitorId);
-      if (result.success) {
-        alert("나의 꽃 보관함에 저장되었습니다 🌸");
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      if (isIOS) {
+        window.open(dataUrl, "_blank");
       } else {
-        alert("기기 저장엔 성공했으나, 서버 기록 중 오류가 발생했습니다.");
+        const link = document.createElement("a");
+        link.download = `ONHWA_Photocard_${Date.now()}.jpg`;
+        link.href = dataUrl;
+        link.click();
       }
     } catch (error) {
       console.error("카드 생성 실패:", error);
@@ -65,6 +51,32 @@ export default function PhotoCardBuilder({ bouquetId, flowerName }: PhotoCardBui
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleKakaoShare = () => {
+    const kakao = (window as any).Kakao;
+    if (!kakao?.isInitialized()) {
+      alert("카카오톡 공유를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+      return;
+    }
+    const pageUrl = window.location.href;
+    kakao.Share.sendDefault({
+      objectType: "feed",
+      content: {
+        title: flowerName,
+        description: bouquetStory.slice(0, 80) + (bouquetStory.length > 80 ? "…" : ""),
+        imageUrl: (imageUrl && !imageUrl.startsWith("data:"))
+          ? imageUrl
+          : "https://images.unsplash.com/photo-1490750967868-88df5691cc53?w=800&auto=format&fit=crop",
+        link: { mobileWebUrl: pageUrl, webUrl: pageUrl },
+      },
+      buttons: [
+        {
+          title: "꽃 이야기 보러가기",
+          link: { mobileWebUrl: pageUrl, webUrl: pageUrl },
+        },
+      ],
+    });
   };
 
   const today = new Intl.DateTimeFormat('ko-KR', { 
@@ -128,19 +140,27 @@ export default function PhotoCardBuilder({ bouquetId, flowerName }: PhotoCardBui
 
       {/* 액션 버튼 */}
       {photo && (
-        <button
-          onClick={handleSaveCard}
-          disabled={isGenerating}
-          className="w-full bg-[var(--warm-text)] text-white py-4 rounded-xl font-bold hover:bg-black transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-70 disabled:cursor-wait"
-        >
-          {isGenerating ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : (
-            <>
-              <Download className="w-5 h-5" /> 내 폰에 저장 및 아카이빙
-            </>
-          )}
-        </button>
+        <div className="flex flex-col gap-3 w-full">
+          <button
+            type="button"
+            onClick={handleSaveCard}
+            disabled={isGenerating}
+            className="w-full bg-[var(--warm-text)] text-white py-4 rounded-xl font-bold hover:bg-black transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-70 disabled:cursor-wait"
+          >
+            {isGenerating ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <><Download className="w-5 h-5" /> 내 폰에 저장</>
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={handleKakaoShare}
+            className="unboxing-cta-btn"
+          >
+            🌸 이 꽃의 이야기 공유하기
+          </button>
+        </div>
       )}
     </div>
   );

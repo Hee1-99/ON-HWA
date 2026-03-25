@@ -140,3 +140,20 @@ export async function confirmSale(bouquetId: string, recipientPhone: string) {
   revalidatePath('/dashboard');
   return { success: true };
 }
+
+export async function deleteBouquets(bouquetIds: string[]) {
+  if (!bouquetIds || bouquetIds.length === 0) return { success: true };
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from('bouquets')
+    .delete()
+    .in('id', bouquetIds);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath('/dashboard');
+  return { success: true };
+}

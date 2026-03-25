@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { confirmSale } from "@/app/actions/bouquetActions";
-import { CheckCircle, Phone, Lock, Gift, Loader2, MessageCircle } from "lucide-react";
+import { confirmSale, deleteBouquets } from "@/app/actions/bouquetActions";
+import { CheckCircle, Phone, Lock, Gift, Loader2, MessageCircle, Trash2, CheckSquare, Square } from "lucide-react";
 
 export default function DashboardClient({ initialBouquets }: { initialBouquets: any[] }) {
   const [bouquets, setBouquets] = useState(initialBouquets);
@@ -10,6 +10,11 @@ export default function DashboardClient({ initialBouquets }: { initialBouquets: 
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'selling' | 'sold'>('all');
+
+  // Select Mode State
+  const [isSelectMode, setIsSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleConfirmSale = async (id: string) => {
     const phone = phoneInputs[id];
@@ -89,6 +94,34 @@ export default function DashboardClient({ initialBouquets }: { initialBouquets: 
     return true;
   });
 
+  const handleDeleteSelected = async () => {
+    if (selectedIds.length === 0) return;
+    if (!confirm(`정말로 ${selectedIds.length}개의 꽃다발을 삭제하시겠습니까?`)) return;
+
+    setIsDeleting(true);
+    setErrorMsg(null);
+    try {
+      const res = await deleteBouquets(selectedIds);
+      if (res.success) {
+        setBouquets((prev) => prev.filter((b) => !selectedIds.includes(b.id)));
+        setSelectedIds([]);
+        setIsSelectMode(false);
+      } else {
+        setErrorMsg(res.error || "삭제 중 오류가 발생했습니다.");
+      }
+    } catch (err) {
+      setErrorMsg("네트워크 오류가 발생했습니다.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const toggleSelection = (id: string) => {
+    setSelectedIds((prev) => 
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
   return (
     <div className="flex flex-col gap-6">
       {errorMsg && (
@@ -97,7 +130,9 @@ export default function DashboardClient({ initialBouquets }: { initialBouquets: 
         </div>
       )}
 
-      {/* Filter Tabs */}
+      {/* Control Bar: Filters & Delete Actions */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        {/* Filter Tabs */}
       <div className="flex gap-1.5 p-1 bg-gray-100/80 w-fit rounded-xl border border-gray-200 shadow-inner">
         <button
           onClick={() => setFilter('all')}
@@ -119,6 +154,36 @@ export default function DashboardClient({ initialBouquets }: { initialBouquets: 
         </button>
       </div>
 
+      {/* Delete Controls */}
+      <div className="flex items-center gap-2 w-full sm:w-auto">
+        {isSelectMode ? (
+          <>
+            <button
+              onClick={() => { setIsSelectMode(false); setSelectedIds([]); }}
+              className="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-800 transition-colors bg-white border border-gray-200 rounded-lg shadow-sm"
+            >
+              취소
+            </button>
+            <button
+              onClick={handleDeleteSelected}
+              disabled={selectedIds.length === 0 || isDeleting}
+              className="px-4 py-2 text-sm font-bold text-white bg-red-500 hover:bg-red-600 rounded-lg shadow-sm transition-colors flex items-center gap-2 disabled:opacity-50"
+            >
+              {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+              {selectedIds.length}개 삭제하기
+            </button>
+          </>
+        ) : (
+          <button
+            onClick={() => setIsSelectMode(true)}
+            className="px-4 py-2 text-sm font-bold text-gray-500 hover:text-red-500 transition-colors bg-white border border-gray-200 rounded-lg shadow-sm flex items-center gap-2"
+          >
+            <CheckSquare className="w-4 h-4" /> 선택 삭제
+          </button>
+        )}
+      </div>
+      </div>
+
       {filteredBouquets.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-12 bg-white rounded-2xl border border-dashed border-gray-300">
           <p className="text-gray-500 font-medium text-lg">해당 조건의 꽃다발이 없습니다.</p>
@@ -128,14 +193,29 @@ export default function DashboardClient({ initialBouquets }: { initialBouquets: 
           {filteredBouquets.map((b) => {
           const isSoldOut = b.status === "sent" || b.status === "archived";
           const isLoading = loadingId === b.id;
+          const isSelected = selectedIds.includes(b.id);
 
           return (
             <div 
               key={b.id} 
-              className={`flex flex-col bg-white rounded-2xl border overflow-hidden transition-all shadow-sm ${
-                isSoldOut ? "border-gray-200 opacity-80" : "border-[var(--color-border)] hover:border-[var(--color-primary)] hover:shadow-md"
+              onClick={() => isSelectMode ? toggleSelection(b.id) : undefined}
+              className={`flex flex-col bg-white rounded-2xl border overflow-hidden transition-all shadow-sm relative ${
+                isSelectMode ? "cursor-pointer" : ""
+              } ${
+                isSelected ? "border-red-500 ring-4 ring-red-100" : isSoldOut ? "border-gray-200 opacity-80" : "border-[var(--color-border)] hover:border-[var(--color-primary)] hover:shadow-md"
               }`}
             >
+              {/* Checkbox Overlay in Select Mode */}
+              {isSelectMode && (
+                <div className="absolute top-4 left-4 z-10 bg-white/50 rounded-full p-1 backdrop-blur-sm">
+                  {isSelected ? (
+                    <CheckSquare className="w-7 h-7 text-red-500 bg-white" />
+                  ) : (
+                    <Square className="w-7 h-7 text-gray-400 bg-white bg-opacity-80" />
+                  )}
+                </div>
+              )}
+
               {/* Image & Header */}
               <div className="relative aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
                 {b.original_img_url ? (

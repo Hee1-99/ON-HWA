@@ -86,9 +86,11 @@ export default function RecipientView({ bouquet }: { bouquet: any }) {
           
           {/* PhotoCardBuilder는 이전에 Tailwind로 구현해둔 것을 그대로 활용합니다. */}
           <div className="mt-4">
-            <PhotoCardBuilder 
-              bouquetId={bouquet.id} 
-              flowerName={bouquet.ai_name} 
+            <PhotoCardBuilder
+              bouquetId={bouquet.id}
+              flowerName={bouquet.ai_name}
+              bouquetStory={bouquet.ai_story ?? ""}
+              imageUrl={bouquet.original_img_url ?? ""}
             />
           </div>
         </div>

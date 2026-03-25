@@ -1,15 +1,9 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/serverAdmin";
 
 export async function saveArchive(bouquetId: string, base64PhotoData: string, visitorId: string) {
-  // Demo handling for mock IDs
-  if (bouquetId.startsWith("mock")) {
-    console.log("Mock archive saved for bouquet:", bouquetId, "visitorId:", visitorId);
-    return { success: true };
-  }
-
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   try {
     // 1. Convert base64 string to Buffer

@@ -17,22 +17,14 @@ export default async function DashboardPage() {
   let displayBouquets: any[] = [];
 
   if (user) {
-    // 유저의 상점 먼저 조회
-    const { data: shop } = await admin
-      .from('shops')
-      .select('id')
-      .eq('owner_id', user.id)
-      .single();
+    // shops → bouquets 한 번에 조회
+    const { data } = await admin
+      .from('bouquets')
+      .select('*, shops!inner(owner_id)')
+      .eq('shops.owner_id', user.id)
+      .order('created_at', { ascending: false });
 
-    if (shop) {
-      const { data: bouquets } = await admin
-        .from('bouquets')
-        .select('*')
-        .eq('shop_id', shop.id)
-        .order('created_at', { ascending: false });
-
-      displayBouquets = bouquets ?? [];
-    }
+    displayBouquets = data ?? [];
   }
 
   return (

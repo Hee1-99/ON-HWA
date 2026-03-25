@@ -1,0 +1,70 @@
+================================================================
+[PRD] 프로젝트명: ON:HWA (온:화) - V1.0 (MVP)
+AI 기반 감성 네이밍 및 디지털 포토카드 아카이빙 플랫폼
+================================================================
+
+1. 서비스 비전 & 슬로건
+----------------------------------------------------------------
+- 브랜드 의미: 꽃의 온기(溫花)를 AI 기술로 켜다(ON).
+- 슬로건: "ON:HWA — 꽃의 서사를 켜다."
+- 핵심 가치: 
+  * 플로리스트: 브랜딩/마케팅 업무 자동화 (B2B SaaS)
+  * 수령인: 휘발되는 선물(꽃)의 디지털 자산화 및 추억 보관 (B2C)
+
+2. 대상 사용자 및 페인포인트 (Target & Pain Points)
+----------------------------------------------------------------
+(1) 플로리스트 (제작자/사장님)
+- Pain Point: 매번 새로운 꽃 상품의 작명, SNS 문구 작성, 고객 개별 전송의 번거로움.
+- Solution: AI 비전 기반 자동 작명 및 원클릭 알림톡 전송 시스템.
+
+(2) 수령인 (고객)
+- Pain Point: 선물 받은 꽃이 시들면 사라지는 아쉬움, 예쁘게 기록하고 싶은 욕구.
+- Solution: 고유한 스토리 확인 및 실시간 웹 포토카드 생성/아카이빙.
+
+3. 단계별 로드맵 (Roadmap)
+----------------------------------------------------------------
+[Phase 1: 모바일 웹 MVP (우선 개발)]
+- 목적: 설치 장벽 제거 및 빠른 시장 검증.
+- 핵심 루프: 업로드 -> AI 네이밍 -> 알림톡 전송 -> 수령인 접속 -> 포토카드 생성.
+
+[Phase 2: 모바일 앱 확장 (리텐션 강화)]
+- 목적: 유저 락인(Lock-in) 및 수익화.
+- 주요 기능: 앱 내 아카이브 동기화, 꽃 수명 알림 푸시, 실물 굿즈 인화 연동.
+
+4. 핵심 기능 상세 (MVP Feature List)
+----------------------------------------------------------------
+- F01 (AI Engine): Gemini 3 Flash / GPT-4o-mini 기반 이미지 분석 및 시적 작명.
+- F02 (Card Maker): 브라우저 Canvas API를 이용한 실시간 포토카드 합성 및 저장.
+- F03 (ON:HWA Link): 수령인 전용 고유 ID 기반 웹 페이지 생성 및 알림톡 발송.
+- F04 (Dashboard): 사장님 전용 상품 관리 및 전송 현황 대시보드.
+- F05 (Archiving): 수령인의 카드 생성 내역을 Supabase Storage에 영구 저장.
+
+5. 기술 스택 (Technical Stack)
+----------------------------------------------------------------
+- Frontend: Next.js (App Router), Tailwind CSS (반응형/모바일 우선)
+- Backend/DB: Supabase (Auth, PostgreSQL, Storage, Edge Functions)
+- AI Model: Google AI Studio (Gemini 3 Flash API - 비용 절감형)
+- Design/Logic: Claude Pro (Architecture & Prompt Engineering)
+- Development Tool: Antigravity (Implementation & Full-stack Coding)
+- Library: Zod (Validation), html2canvas/Canvas API (Card Synthesis)
+
+6. 데이터베이스 구조 (Core ERD)
+----------------------------------------------------------------
+- shops: id, name, logo_url, slug, contact, plan_type
+- bouquets: id, shop_id, ai_name, ai_story, original_img_url, link_id, status
+- archives: id, bouquet_id, user_img_url, card_img_url, created_at
+
+7. 운영 및 비용 전략
+----------------------------------------------------------------
+- 호스팅: Vercel (Hobby -> Pro 전환 예정)
+- DB/Storage: Supabase (Free Tier 우선 활용)
+- AI 비용: Gemini 3 Flash 무료 티어 활용으로 API 비용 0원 지향.
+- 마케팅 비용: 알림톡 발송 건당 비용 (약 6~9원) 기반 종량제.
+
+8. 개발 프로세스 (Development Protocol)
+----------------------------------------------------------------
+- 설계 (Claude): DB 스키마 SQL, 복잡한 Canvas 함수 로직, AI 시스템 프롬프트 작성.
+- 구현 (Antigravity): Next.js 환경 구축, UI 컴포넌트 개발, Supabase API 연동.
+- 테스트: 사장님 업로드부터 수령인 카드 저장까지의 'Happy Path' 검증.
+
+================================================================

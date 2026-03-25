@@ -2,7 +2,9 @@
 
 import { useRef, useState } from "react";
 import html2canvas from "html2canvas";
-import { Download, Loader2, Image as ImageIcon } from "lucide-react";
+import { Download, Loader2, Image as ImageIcon, Archive } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { saveArchive } from "@/app/actions/archiveActions";
 
 interface PhotoCardBuilderProps {
   bouquetId: string;
@@ -11,9 +13,10 @@ interface PhotoCardBuilderProps {
   imageUrl: string;
 }
 
-export default function PhotoCardBuilder({ bouquetId: _bouquetId, flowerName, bouquetStory, imageUrl }: PhotoCardBuilderProps) {
+export default function PhotoCardBuilder({ bouquetId, flowerName, bouquetStory, imageUrl }: PhotoCardBuilderProps) {
   const [photo, setPhoto] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isArchiving, setIsArchiving] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,16 +28,21 @@ export default function PhotoCardBuilder({ bouquetId: _bouquetId, flowerName, bo
     }
   };
 
+  const generateCardDataUrl = async (): Promise<string | null> => {
+    if (!cardRef.current || !photo) return null;
+    const canvas = await html2canvas(cardRef.current, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#FFF8F5",
+    });
+    return canvas.toDataURL("image/jpeg", 0.9);
+  };
+
   const handleSaveCard = async () => {
-    if (!cardRef.current || !photo) return;
     setIsGenerating(true);
     try {
-      const canvas = await html2canvas(cardRef.current, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#FFF8F5",
-      });
-      const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+      const dataUrl = await generateCardDataUrl();
+      if (!dataUrl) return;
 
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
       if (isIOS) {
@@ -50,6 +58,36 @@ export default function PhotoCardBuilder({ bouquetId: _bouquetId, flowerName, bo
       alert("포토카드 생성 중 문제가 발생했습니다.");
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleArchive = async () => {
+    setIsArchiving(true);
+    try {
+      const dataUrl = await generateCardDataUrl();
+      if (!dataUrl) { setIsArchiving(false); return; }
+
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (user && user.user_metadata?.role === "general") {
+        // Already logged in as general user — archive directly
+        const res = await saveArchive(bouquetId, dataUrl, user.id);
+        if (res.success) {
+          alert("포토카드가 아카이빙되었습니다! 내 아카이브에서 확인하세요.");
+        } else {
+          alert("아카이빙 실패: " + res.error);
+        }
+      } else {
+        // Not logged in (or wrong role) — save to sessionStorage and go to login
+        sessionStorage.setItem("pendingArchive", JSON.stringify({ dataUrl, bouquetId }));
+        window.location.href = "/login?from=archive";
+      }
+    } catch (error) {
+      console.error("아카이빙 실패:", error);
+      alert("아카이빙 중 문제가 발생했습니다.");
+    } finally {
+      setIsArchiving(false);
     }
   };
 
@@ -79,15 +117,15 @@ export default function PhotoCardBuilder({ bouquetId: _bouquetId, flowerName, bo
     });
   };
 
-  const today = new Intl.DateTimeFormat('ko-KR', { 
-    year: 'numeric', month: 'long', day: 'numeric' 
+  const today = new Intl.DateTimeFormat('ko-KR', {
+    year: 'numeric', month: 'long', day: 'numeric'
   }).format(new Date());
 
   return (
     <div className="flex flex-col items-center gap-6 w-full max-w-sm mx-auto">
-      
+
       {/* 캔버스 (html2canvas 캡처 영역) */}
-      <div 
+      <div
         ref={cardRef}
         className="w-full aspect-[3/4] bg-[var(--warm-card)] rounded-[24px] shadow-xl border border-[var(--warm-border)] p-4 flex flex-col items-center relative overflow-hidden"
       >
@@ -102,12 +140,12 @@ export default function PhotoCardBuilder({ bouquetId: _bouquetId, flowerName, bo
               <p className="text-sm font-bold opacity-70">여기를 눌러 추억 업로드</p>
             </div>
           )}
-          
+
           {/* 숨겨진 실제 input */}
-          <input 
-            type="file" 
-            accept="image/*" 
-            onChange={handlePhotoUpload} 
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handlePhotoUpload}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
             title="Upload Photo"
           />
@@ -151,6 +189,18 @@ export default function PhotoCardBuilder({ bouquetId: _bouquetId, flowerName, bo
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
               <><Download className="w-5 h-5" /> 내 폰에 저장</>
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={handleArchive}
+            disabled={isArchiving}
+            className="w-full bg-[var(--warm-rose)] text-white py-4 rounded-xl font-bold hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-70 disabled:cursor-wait"
+          >
+            {isArchiving ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <><Archive className="w-5 h-5" /> 포토카드 아카이빙 하기</>
             )}
           </button>
           <button

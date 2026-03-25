@@ -178,7 +178,7 @@ export default function DashboardClient({ initialBouquets }: { initialBouquets: 
             onClick={() => setIsSelectMode(true)}
             className="px-4 py-2 text-sm font-bold text-gray-500 hover:text-red-500 transition-colors bg-white border border-gray-200 rounded-lg shadow-sm flex items-center gap-2"
           >
-            <CheckSquare className="w-4 h-4" /> 선택 삭제
+            <CheckCircle className="w-4 h-4" /> 선택 삭제
           </button>
         )}
       </div>
@@ -207,11 +207,11 @@ export default function DashboardClient({ initialBouquets }: { initialBouquets: 
             >
               {/* Checkbox Overlay in Select Mode */}
               {isSelectMode && (
-                <div className="absolute top-4 left-4 z-10 bg-white/50 rounded-full p-1 backdrop-blur-sm">
+                <div className="absolute top-4 left-4 z-10 bg-white shadow-sm rounded-full flex items-center justify-center p-0.5 pointer-events-none">
                   {isSelected ? (
-                    <CheckSquare className="w-7 h-7 text-red-500 bg-white" />
+                    <CheckCircle className="w-8 h-8 text-red-500 fill-red-50" />
                   ) : (
-                    <Square className="w-7 h-7 text-gray-400 bg-white bg-opacity-80" />
+                    <div className="w-8 h-8 rounded-full border-2 border-gray-300 bg-white/80" />
                   )}
                 </div>
               )}

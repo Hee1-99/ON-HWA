@@ -15,7 +15,7 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({
             request,
           })
@@ -27,25 +27,38 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  // IMPORTANT: Avoid writing any logic between createServerClient and
-  // supabase.auth.getUser(). A simple mistake can make it very hard to debug
-  // issues with users being logged out.
-
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const path = request.nextUrl.pathname;
+  const path = request.nextUrl.pathname
+  const role = user?.user_metadata?.role as 'florist' | 'general' | undefined
 
-  // Protect the dashboard routes
-  if (!user && path.startsWith('/dashboard')) {
+  // Unauthenticated: protect dashboard and archive
+  if (!user) {
+    if (path.startsWith('/dashboard') || path.startsWith('/archive')) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      return NextResponse.redirect(url)
+    }
+    return supabaseResponse
+  }
+
+  // Authenticated: redirect away from login
+  if (path === '/login') {
     const url = request.nextUrl.clone()
-    url.pathname = '/login'
+    url.pathname = role === 'general' ? '/archive' : '/dashboard'
     return NextResponse.redirect(url)
   }
 
-  // Redirect authenticated users away from the login page
-  if (user && path === '/login') {
+  // Role-based cross-protection
+  if (role === 'general' && path.startsWith('/dashboard')) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/archive'
+    return NextResponse.redirect(url)
+  }
+
+  if (role === 'florist' && path.startsWith('/archive')) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
     return NextResponse.redirect(url)

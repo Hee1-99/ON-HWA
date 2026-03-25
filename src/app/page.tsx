@@ -1,7 +1,14 @@
 import { Flower2, Sparkles, Camera, ArrowRight, ShieldCheck } from "lucide-react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const role = user?.user_metadata?.role as 'florist' | 'general' | undefined;
+  const dashHref = user ? (role === 'general' ? '/archive' : '/dashboard') : '/login';
+  const dashLabel = user ? (role === 'general' ? '내 아카이브' : '내 대쉬보드') : '로그인';
+
   return (
     <div className="flex flex-col min-h-screen bg-[var(--color-bg-default)]">
 
@@ -22,10 +29,10 @@ export default function LandingPage() {
             주요 기능
           </Link>
           <Link
-            href="/login"
+            href={dashHref}
             className="text-sm font-medium uppercase tracking-wide bg-[var(--color-primary)] text-white px-5 py-2 hover:opacity-80 transition-opacity"
           >
-            로그인
+            {dashLabel}
           </Link>
         </nav>
       </header>

@@ -2,13 +2,19 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Loader2, Flower2, Store } from "lucide-react";
+
+type Role = "florist" | "general";
 
 export function AuthForm() {
+  const searchParams = useSearchParams();
+  const fromArchive = searchParams.get("from") === "archive";
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLogin, setIsLogin] = useState(true);
+  const [role, setRole] = useState<Role>(fromArchive ? "general" : "florist");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const router = useRouter();
@@ -21,14 +27,19 @@ export function AuthForm() {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        router.push("/dashboard");
+        const userRole = data.user?.user_metadata?.role as Role | undefined;
+        router.push(userRole === "general" ? "/archive" : "/dashboard");
         router.refresh();
       } else {
-        const { error } = await supabase.auth.signUp({ email, password });
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { data: { role } },
+        });
         if (error) throw error;
-        alert("회원가입이 완료되었습니다!");
+        alert("회원가입이 완료되었습니다! 로그인해주세요.");
         setIsLogin(true);
       }
     } catch (err: any) {
@@ -38,12 +49,18 @@ export function AuthForm() {
     }
   };
 
+  const isFlorist = role === "florist";
+
   return (
     <div className="w-full max-w-md bg-[var(--warm-card)] rounded-2xl p-8 border-2 border-[var(--warm-border)] shadow-[0_8px_32px_rgba(180,100,80,0.08)]">
       <div className="flex flex-col items-center mb-8">
         <h1 className="text-3xl font-bold font-outfit text-[var(--warm-text)] mb-2">ON:HWA</h1>
         <p className="text-[var(--warm-muted)] font-medium text-sm">
-          사장님 전용 매니지먼트 라운지
+          {isLogin
+            ? isFlorist
+              ? "사장님 전용 매니지먼트 라운지"
+              : "내 포토카드 아카이브"
+            : "회원가입"}
         </p>
       </div>
 
@@ -51,6 +68,41 @@ export function AuthForm() {
         {errorMsg && (
           <div className="p-3 bg-red-50 text-red-600 text-sm rounded-lg font-medium border border-red-100">
             {errorMsg}
+          </div>
+        )}
+
+        {/* Role selector — signup only */}
+        {!isLogin && (
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-bold text-[var(--warm-text)]">회원 유형</label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setRole("florist")}
+                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                  role === "florist"
+                    ? "border-[var(--warm-rose)] bg-[var(--warm-rose)]/5"
+                    : "border-[var(--warm-border)] hover:border-[var(--warm-rose)]/50"
+                }`}
+              >
+                <Store className="w-5 h-5 text-[var(--warm-rose)]" />
+                <span className="text-sm font-bold text-[var(--warm-text)]">사장님</span>
+                <span className="text-xs text-[var(--warm-muted)]">꽃집 운영</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole("general")}
+                className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                  role === "general"
+                    ? "border-[var(--warm-rose)] bg-[var(--warm-rose)]/5"
+                    : "border-[var(--warm-border)] hover:border-[var(--warm-rose)]/50"
+                }`}
+              >
+                <Flower2 className="w-5 h-5 text-[var(--warm-rose)]" />
+                <span className="text-sm font-bold text-[var(--warm-text)]">일반 회원</span>
+                <span className="text-xs text-[var(--warm-muted)]">포토카드 보관</span>
+              </button>
+            </div>
           </div>
         )}
 
@@ -62,7 +114,7 @@ export function AuthForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="warm-input"
-            placeholder="shop@onhwa.com"
+            placeholder="example@onhwa.com"
           />
         </div>
 
@@ -84,7 +136,7 @@ export function AuthForm() {
           className="mt-2 w-full bg-[var(--warm-rose)] text-white py-3.5 rounded-xl font-bold shadow-sm hover:bg-[var(--warm-text)] hover:shadow-md hover:-translate-y-0.5 transition-all disabled:opacity-70 disabled:hover:translate-y-0 flex items-center justify-center gap-2"
         >
           {loading && <Loader2 className="w-5 h-5 animate-spin" />}
-          {isLogin ? "대시보드 로그인" : "신규 입점 가입"}
+          {isLogin ? "로그인" : "가입하기"}
         </button>
       </form>
 
@@ -97,7 +149,7 @@ export function AuthForm() {
           }}
           className="text-sm text-[var(--warm-muted)] hover:text-[var(--warm-rose)] font-bold transition-colors"
         >
-          {isLogin ? "아직 계정이 없으신가요? 입점 신청" : "이미 입점하셨나요? 로그인"}
+          {isLogin ? "계정이 없으신가요? 회원가입" : "이미 계정이 있으신가요? 로그인"}
         </button>
       </div>
     </div>

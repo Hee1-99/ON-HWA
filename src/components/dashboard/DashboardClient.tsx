@@ -48,6 +48,7 @@ export default function DashboardClient({ initialBouquets }: { initialBouquets: 
     }
 
     const shareUrl = `${window.location.origin}/flower/${b.link_id}`;
+    console.log('[Kakao Share] URL:', shareUrl);
 
     kakao.Share.sendDefault({
       objectType: 'feed',

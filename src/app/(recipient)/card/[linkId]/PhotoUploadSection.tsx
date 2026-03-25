@@ -131,8 +131,8 @@ export default function PhotoUploadSection({ folder = "card" }: Props) {
             className="photo-progress-bar"
             role="progressbar"
             aria-label="업로드 진행률"
-            aria-valuemin="0"
-            aria-valuemax="100"
+            aria-valuemin={0}
+            aria-valuemax={100}
           >
             <div className="photo-progress-fill" />
           </div>

@@ -13,10 +13,6 @@ const nanumMyeongjo = Nanum_Myeongjo({
 export const metadata: Metadata = {
   title: "ON:HWA — 꽃의 서사를 켜다",
   description: "AI 기반 감성 네이밍 및 디지털 포토카드 아카이빙 플랫폼",
-  icons: {
-    icon: "/onhwa_icon.jpg",
-    apple: "/onhwa_icon.jpg",
-  },
 };
 
 import KakaoScript from "@/components/KakaoScript";

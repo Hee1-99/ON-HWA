@@ -9,11 +9,11 @@ import { saveArchive } from "@/app/actions/archiveActions";
 interface PhotoCardBuilderProps {
   bouquetId: string;
   flowerName: string;
-  bouquetStory: string;
-  imageUrl: string;
+  bouquetStory?: string;
+  imageUrl?: string;
 }
 
-export default function PhotoCardBuilder({ bouquetId, flowerName, bouquetStory, imageUrl }: PhotoCardBuilderProps) {
+export default function PhotoCardBuilder({ bouquetId, flowerName }: PhotoCardBuilderProps) {
   const [photo, setPhoto] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
@@ -89,32 +89,6 @@ export default function PhotoCardBuilder({ bouquetId, flowerName, bouquetStory, 
     } finally {
       setIsArchiving(false);
     }
-  };
-
-  const handleKakaoShare = () => {
-    const kakao = (window as any).Kakao;
-    if (!kakao?.isInitialized()) {
-      alert("카카오톡 공유를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
-      return;
-    }
-    const pageUrl = window.location.href;
-    kakao.Share.sendDefault({
-      objectType: "feed",
-      content: {
-        title: flowerName,
-        description: bouquetStory.slice(0, 80) + (bouquetStory.length > 80 ? "…" : ""),
-        imageUrl: (imageUrl && !imageUrl.startsWith("data:"))
-          ? imageUrl
-          : "https://images.unsplash.com/photo-1490750967868-88df5691cc53?w=800&auto=format&fit=crop",
-        link: { mobileWebUrl: pageUrl, webUrl: pageUrl },
-      },
-      buttons: [
-        {
-          title: "꽃 이야기 보러가기",
-          link: { mobileWebUrl: pageUrl, webUrl: pageUrl },
-        },
-      ],
-    });
   };
 
   const today = new Intl.DateTimeFormat('ko-KR', {
@@ -202,13 +176,6 @@ export default function PhotoCardBuilder({ bouquetId, flowerName, bouquetStory, 
             ) : (
               <><Archive className="w-5 h-5" /> 포토카드 아카이빙 하기</>
             )}
-          </button>
-          <button
-            type="button"
-            onClick={handleKakaoShare}
-            className="unboxing-cta-btn"
-          >
-            🌸 이 꽃의 이야기 공유하기
           </button>
         </div>
       )}

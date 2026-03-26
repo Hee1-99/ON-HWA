@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { acceptQuote } from "@/app/actions/orderActions";
-import { Loader2, CheckCircle, Store, Tag, MessagesSquare, ArrowLeft, Phone } from "lucide-react";
+import { Loader2, CheckCircle, Store, Tag, MessagesSquare, ArrowLeft, Phone, Share2, MessageCircle } from "lucide-react";
 import Link from "next/link";
 
 interface RequestData {
@@ -55,6 +55,37 @@ export default function BuyerOrderClient({ request, initialQuotes }: { request: 
     }
   };
 
+  const handleKakaoShare = () => {
+    const kakao = (window as any).Kakao;
+    if (!kakao?.isInitialized()) {
+      alert("카카오톡 기능을 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+      return;
+    }
+
+    const shareUrl = window.location.href;
+    kakao.Share.sendDefault({
+      objectType: "feed",
+      content: {
+        title: `ON:HWA - ${request.recipient_target}님을 위한 꽃 추천`,
+        description: request.ai_flower_recommendation.slice(0, 80) + (request.ai_flower_recommendation.length > 80 ? "..." : ""),
+        imageUrl: "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?q=80&w=800&auto=format&fit=crop", // 감성적인 기본 꽃 이미지
+        link: {
+          mobileWebUrl: shareUrl,
+          webUrl: shareUrl,
+        },
+      },
+      buttons: [
+        {
+          title: "추천 구성 상세보기",
+          link: {
+            mobileWebUrl: shareUrl,
+            webUrl: shareUrl,
+          },
+        },
+      ],
+    });
+  };
+
   const isAwarded = request.status === "awarded" || request.status === "completed";
 
   return (
@@ -65,7 +96,15 @@ export default function BuyerOrderClient({ request, initialQuotes }: { request: 
       
       {/* Request Details */}
       <div className="bg-[#FFF8F5] border border-[#F4E3DD] rounded-2xl p-6 md:p-8 flex flex-col gap-6 relative overflow-hidden">
-        <h2 className="font-outfit text-xl font-bold text-[var(--warm-rose)] border-b border-[#F4E3DD] pb-4">내 맞춤 주문 요약</h2>
+        <div className="flex justify-between items-center border-b border-[#F4E3DD] pb-4">
+          <h2 className="font-outfit text-xl font-bold text-[var(--warm-rose)]">내 맞춤 주문 요약</h2>
+          <button
+            onClick={handleKakaoShare}
+            className="flex items-center gap-2 bg-[#FEE500] text-[#3A1D1D] px-4 py-2 rounded-xl text-sm font-bold hover:bg-[#FEE500]/90 transition-all shadow-sm"
+          >
+            <MessageCircle className="w-4 h-4" /> 카톡 공유
+          </button>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="flex flex-col gap-2">
             <span className="text-sm font-bold text-gray-500">선물 상황 및 대상</span>

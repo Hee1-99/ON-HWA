@@ -104,21 +104,21 @@ export async function createBouquet(name: string, story: string, imageUrl: strin
   }
 
   // 4. 꽃다발 등록
-  const { error: bouquetError } = await admin.from('bouquets').insert({
+  const { data: bouquet, error: bouquetError } = await admin.from('bouquets').insert({
     shop_id:          shopId,
     ai_name:          name,
     ai_story:         story,
     original_img_url: finalImageUrl,
     status:           'draft',
     // link_id는 DB DEFAULT(gen_random_bytes)로 자동 생성
-  });
+  }).select('link_id').single();
 
   if (bouquetError) {
     return { success: false, error: `꽃다발 등록 오류: ${bouquetError.message}` };
   }
 
   revalidatePath('/dashboard');
-  return { success: true };
+  return { success: true, linkId: bouquet?.link_id as string | undefined };
 }
 
 export async function confirmSale(bouquetId: string, recipientPhone: string) {

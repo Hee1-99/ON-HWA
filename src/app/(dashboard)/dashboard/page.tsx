@@ -1,64 +1,111 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/serverAdmin";
-import DashboardClient from "@/components/dashboard/DashboardClient";
 import LogoutButton from "@/components/LogoutButton";
 
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Flower2, Inbox, MessageSquareShare, ArrowRight } from "lucide-react";
 
-export default async function DashboardPage() {
-  // 인증 확인은 쿠키 기반 클라이언트로
+export default async function DashboardPortalPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  // DB 조회는 admin 클라이언트로 (RLS JWT 문제 우회)
+  if (!user) return null;
+
   const admin = createAdminClient();
 
-  let displayBouquets: any[] = [];
+  // Fetch shop info
+  const { data: shop } = await admin
+    .from('shops')
+    .select('id, name')
+    .eq('owner_id', user.id)
+    .single();
 
-  if (user) {
-    // shops → bouquets 한 번에 조회
-    const { data } = await admin
-      .from('bouquets')
-      .select('*, shops!inner(owner_id)')
-      .eq('shops.owner_id', user.id)
-      .order('created_at', { ascending: false });
+  const shopName = shop?.name || "사장님";
 
-    displayBouquets = data ?? [];
-  }
+  // Fetch quick stats
+  const { count: pendingRequestsCount } = await admin
+    .from("custom_requests")
+    .select("*", { count: "exact", head: true })
+    .in("status", ["pending", "quoting"]);
+
+  const { count: matchedOrdersCount } = await admin
+    .from("custom_quotes")
+    .select("*", { count: "exact", head: true })
+    .eq("shop_id", shop?.id)
+    .eq("status", "accepted");
+
+  const { count: myProductsCount } = await admin
+    .from("bouquets")
+    .select("*", { count: "exact", head: true })
+    .eq("shop_id", shop?.id);
 
   return (
-    <div className="container mx-auto p-6 max-w-5xl min-h-screen">
-      <div className="flex justify-between items-start mb-10">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold font-outfit text-[var(--color-primary)] flex items-center gap-3">
-            SHOP DASHBOARD
-          </h1>
-          <p className="text-gray-500 font-medium">나의 꽃다발 관리 및 판매 확정</p>
-        </div>
-        <div className="flex flex-col items-end gap-3">
-          <div className="flex gap-2">
-            <Link 
-              href="/dashboard/requests" 
-              className="flex items-center gap-2 bg-indigo-50 text-indigo-700 border border-indigo-200 px-5 py-2.5 rounded-full font-bold shadow-sm hover:bg-indigo-100 transition-colors"
-            >
-              알림 <span className="w-5 h-5 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs">!</span>
-              새로운 요청 보기
-            </Link>
-            <LogoutButton />
-          </div>
-          <Link 
-            href="/bouquets/new" 
-            className="flex items-center gap-2 bg-[var(--color-primary)] text-white px-5 py-2.5 rounded-full font-bold shadow-md hover:bg-black transition-colors"
-          >
-            <Plus className="w-5 h-5" />
-            새 꽃다발 등록하기
-          </Link>
-        </div>
+    <div className="container mx-auto p-6 max-w-4xl min-h-screen">
+      <div className="flex justify-between items-center mb-12">
+        <h1 className="text-3xl font-bold font-outfit text-[var(--color-primary)]">
+          {shopName}의 대시보드
+        </h1>
+        <LogoutButton />
       </div>
-      
-      <DashboardClient initialBouquets={displayBouquets} />
 
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        {/* Card 1: Products */}
+        <Link href="/dashboard/products" className="group flex flex-col justify-between bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all h-64">
+          <div className="flex flex-col gap-4">
+            <div className="w-12 h-12 bg-gray-50 text-gray-600 rounded-2xl flex items-center justify-center group-hover:bg-gray-800 group-hover:text-white transition-colors">
+              <Flower2 className="w-6 h-6" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-[var(--color-primary)]">판매중인 상품</h2>
+              <p className="text-sm text-gray-500 mt-1">등록된 꽃다발 큐레이션 및 판매 상태 관리</p>
+            </div>
+          </div>
+          <div className="flex items-center justify-between border-t pt-4">
+            <span className="font-bold text-gray-900">{myProductsCount || 0}개 상품</span>
+            <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-gray-900 group-hover:translate-x-1 transition-all" />
+          </div>
+        </Link>
+
+        {/* Card 2: Custom Requests */}
+        <Link href="/dashboard/requests" className="group flex flex-col justify-between bg-[var(--color-bg-default)] p-6 rounded-3xl shadow-sm border border-[var(--color-border)] hover:shadow-xl hover:border-[var(--warm-rose)] hover:-translate-y-1 transition-all h-64 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--warm-rose)] opacity-5 rounded-bl-full pointer-events-none" />
+          <div className="flex flex-col gap-4 relative">
+            <div className="w-12 h-12 bg-white shadow-sm text-[var(--warm-rose)] rounded-2xl flex items-center justify-center group-hover:bg-[var(--warm-rose)] group-hover:text-white transition-colors">
+              <Inbox className="w-6 h-6" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-[var(--color-primary)]">커스텀 주문 요청</h2>
+              <p className="text-sm text-[var(--color-secondary)] mt-1">새로운 역경매 요청을 확인하고 견적 제안하기</p>
+            </div>
+          </div>
+          <div className="flex items-center justify-between border-t border-[var(--color-border)] pt-4 relative">
+            <span className="font-bold text-[var(--warm-rose)] bg-white px-3 py-1 rounded-full text-sm flex items-center gap-2 shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-[var(--warm-rose)] animate-pulse" />
+              대기중 {pendingRequestsCount || 0}건
+            </span>
+            <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-[var(--warm-rose)] group-hover:translate-x-1 transition-all" />
+          </div>
+        </Link>
+
+        {/* Card 3: Matched Orders */}
+        <Link href="/dashboard/matched" className="group flex flex-col justify-between bg-white p-6 rounded-3xl shadow-sm border border-indigo-100 hover:shadow-xl hover:-translate-y-1 transition-all h-64">
+          <div className="flex flex-col gap-4">
+            <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+              <MessageSquareShare className="w-6 h-6" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-indigo-950">매칭된 커스텀 주문</h2>
+              <p className="text-sm text-indigo-900/60 mt-1">구매자가 사장님의 견적을 채택하여 성사된 주문들</p>
+            </div>
+          </div>
+          <div className="flex items-center justify-between border-t border-indigo-50 pt-4">
+            <span className="font-bold text-indigo-600">{matchedOrdersCount || 0}건 매칭됨</span>
+            <ArrowRight className="w-5 h-5 text-indigo-300 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
+          </div>
+        </Link>
+
+      </div>
     </div>
   );
 }

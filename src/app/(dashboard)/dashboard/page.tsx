@@ -37,7 +37,8 @@ export default async function DashboardPortalPage() {
   const { count: myProductsCount } = await admin
     .from("bouquets")
     .select("*", { count: "exact", head: true })
-    .eq("shop_id", shop?.id);
+    .eq("shop_id", shop?.id)
+    .neq("status", "custom_order");
 
   return (
     <div className="container mx-auto p-6 max-w-4xl min-h-screen">

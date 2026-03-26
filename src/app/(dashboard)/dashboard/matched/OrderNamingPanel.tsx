@@ -82,7 +82,7 @@ export default function OrderNamingPanel({ aiFlowerRecommendation, quoteOccasion
     setIsSaving(true);
     setError(null);
     try {
-      const res = await createBouquet(result.name, result.story, image ?? "");
+      const res = await createBouquet(result.name, result.story, image ?? "", true);
       if (!res.success || !res.linkId) {
         setError(res.error || "저장 중 오류가 발생했습니다.");
         return;

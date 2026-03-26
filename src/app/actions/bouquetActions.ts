@@ -29,7 +29,7 @@ export async function updateRecipientPhone(
   return { success: true };
 }
 
-export async function createBouquet(name: string, story: string, imageUrl: string) {
+export async function createBouquet(name: string, story: string, imageUrl: string, isCustomOrder = false) {
   // 인증 확인은 일반 클라이언트(쿠키 기반)로
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -109,7 +109,7 @@ export async function createBouquet(name: string, story: string, imageUrl: strin
     ai_name:          name,
     ai_story:         story,
     original_img_url: finalImageUrl,
-    status:           'draft',
+    status:           isCustomOrder ? 'custom_order' : 'draft',
     // link_id는 DB DEFAULT(gen_random_bytes)로 자동 생성
   }).select('link_id').single();
 

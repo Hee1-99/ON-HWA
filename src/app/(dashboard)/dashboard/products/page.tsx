@@ -18,6 +18,7 @@ export default async function ProductsPage() {
       .from('bouquets')
       .select('*, shops!inner(owner_id)')
       .eq('shops.owner_id', user.id)
+      .neq('status', 'custom_order')
       .order('created_at', { ascending: false });
 
     displayBouquets = data ?? [];

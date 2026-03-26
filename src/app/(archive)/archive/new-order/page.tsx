@@ -89,7 +89,7 @@ export default function NewCustomOrderPage() {
         <div>
           <h1 className="text-2xl font-outfit font-bold text-[var(--color-primary)]">맞춤 주문 시작하기</h1>
           <p className="text-sm text-[var(--color-secondary)] mt-1">
-            원하는 상황을 알려주시면 AI가 꽃말을 고려해 완벽한 조합을 큐레이션합니다.
+            원하는 상황을 알려주시면 AI가 꽃말을 고려해 완벽한 조합을 추천합니다.
           </p>
         </div>
       </div>
@@ -170,14 +170,14 @@ export default function NewCustomOrderPage() {
               {loading ? (
                 <> <Loader2 className="w-5 h-5 animate-spin" /> AI가 꽃의 서사를 찾는 중... </>
               ) : (
-                <> <Sparkles className="w-5 h-5" /> AI 큐레이션 받기 </>
+                <> <Sparkles className="w-5 h-5" /> AI 추천 받기 </>
               )}
             </button>
           </form>
         ) : (
           <div className="flex flex-col gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="flex flex-col gap-4">
-              <h2 className="text-sm font-bold uppercase tracking-widest text-[#B46A55] border-b pb-2">AI 큐레이션 결과</h2>
+              <h2 className="text-sm font-bold uppercase tracking-widest text-[#B46A55] border-b pb-2">AI 추천 결과</h2>
               
               <div className="bg-[#FFF8F5] p-6 rounded-2xl border border-[#F4E3DD] flex flex-col gap-4 relative">
                 <Sparkles className="absolute top-6 right-6 w-5 h-5 text-[#B46A55] opacity-20" />

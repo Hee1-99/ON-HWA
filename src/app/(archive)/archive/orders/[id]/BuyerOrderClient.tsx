@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { acceptQuote } from "@/app/actions/orderActions";
-import { Loader2, CheckCircle, Store, Tag, MessagesSquare, ArrowLeft } from "lucide-react";
+import { Loader2, CheckCircle, Store, Tag, MessagesSquare, ArrowLeft, Phone } from "lucide-react";
 import Link from "next/link";
 
 interface RequestData {
@@ -19,6 +19,7 @@ interface RequestData {
 interface QuoteData {
   id: string;
   shop_name: string;
+  shop_phone?: string;
   price: number;
   description: string;
   status: string;
@@ -123,6 +124,13 @@ export default function BuyerOrderClient({ request, initialQuotes }: { request: 
                       <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-xl flex-1 leading-relaxed whitespace-pre-wrap">{q.description}</p>
                     </div>
                   </div>
+
+                  {accepted && (
+                    <div className="mt-2 text-sm font-bold text-[var(--warm-rose)] bg-[var(--warm-rose)]/5 border border-[var(--warm-rose)]/20 p-4 rounded-xl flex flex-col gap-1">
+                      <span className="flex items-center gap-2 mb-1"><Phone className="w-4 h-4" /> 사장님 연락처: {q.shop_phone}</span>
+                      <span className="text-xs text-[var(--warm-rose)]/80">주문이 성사되었습니다! 위 번호로 문자나 전화를 드려 상세 수령 일정을 조율해주세요.</span>
+                    </div>
+                  )}
 
                   {!isAwarded && (
                      <button

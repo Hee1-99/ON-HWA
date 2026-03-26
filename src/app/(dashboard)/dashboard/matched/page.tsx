@@ -17,8 +17,6 @@ export default async function MatchedOrdersPage() {
   
   let acceptedQuotes: any[] = [];
   if (shop) {
-    // Fetch quotes with status accepted + join custom_requests + join buyer email/phone if possible
-    // Supabase auth.users is protected, but we can just display buyer_id or request details
     const { data } = await admin
       .from("custom_quotes")
       .select(`
@@ -29,7 +27,20 @@ export default async function MatchedOrdersPage() {
       .eq("status", "accepted")
       .order("created_at", { ascending: false });
 
-    acceptedQuotes = data || [];
+    if (data) {
+      acceptedQuotes = await Promise.all(
+        data.map(async (quote) => {
+          let buyerPhone = "연락처 미상";
+          if (quote.request?.buyer_id) {
+            const { data: userData } = await admin.auth.admin.getUserById(quote.request.buyer_id);
+            if (userData?.user?.user_metadata?.phone) {
+              buyerPhone = userData.user.user_metadata.phone;
+            }
+          }
+          return { ...quote, buyer_phone: buyerPhone };
+        })
+      );
+    }
   }
 
   return (
@@ -98,10 +109,12 @@ export default async function MatchedOrdersPage() {
                   <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{quote.description}</p>
                 </div>
                 
-                <div className="mt-2 bg-indigo-50 rounded-xl p-4 border border-indigo-100 flex items-start gap-3">
-                   <Phone className="w-5 h-5 text-indigo-500 shrink-0 mt-0.5" />
-                   <p className="text-xs text-indigo-900 leading-relaxed font-medium">
-                     고객님이 사장님의 견적을 확정했습니다! 등록된 고객 연락처가 있다면 확인하여 제작 및 픽업 여부를 조율해주세요. (현재 플랫폼 내 채팅 기능은 도입 예정입니다)
+                <div className="mt-2 bg-indigo-50 rounded-xl p-4 border border-indigo-100 flex flex-col gap-3">
+                   <p className="text-sm font-bold text-indigo-900 border-b border-indigo-200 pb-2 flex items-center gap-2">
+                     <Phone className="w-4 h-4" /> 구매자 연락처: {quote.buyer_phone}
+                   </p>
+                   <p className="text-xs text-indigo-800 leading-relaxed font-medium">
+                     고객님이 사장님의 견적을 확정했습니다! 위 연락처로 확인하여 제작 및 수령 방식을 최종 조율해주세요.
                    </p>
                 </div>
               </div>

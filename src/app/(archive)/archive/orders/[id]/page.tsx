@@ -32,6 +32,7 @@ export default async function BuyerOrderPage({ params }: { params: Promise<{ id:
     .select(`
       *,
       shops (
+        owner_id,
         name,
         slug
       )
@@ -39,10 +40,25 @@ export default async function BuyerOrderPage({ params }: { params: Promise<{ id:
     .eq("request_id", id)
     .order("price", { ascending: true });
 
-  const formattedQuotes = (quotes || []).map(q => ({
-    ...q,
-    shop_name: q.shops?.name || "알 수 없는 상점"
-  }));
+  let formattedQuotes: any[] = [];
+  if (quotes) {
+    formattedQuotes = await Promise.all(
+      quotes.map(async (q) => {
+        let shopPhone = "연락처 미상";
+        if (q.shops?.owner_id) {
+          const { data: userData } = await admin.auth.admin.getUserById(q.shops.owner_id);
+          if (userData?.user?.user_metadata?.phone) {
+            shopPhone = userData.user.user_metadata.phone;
+          }
+        }
+        return {
+          ...q,
+          shop_name: q.shops?.name || "알 수 없는 상점",
+          shop_phone: shopPhone
+        };
+      })
+    );
+  }
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-8 md:py-12">

@@ -13,6 +13,7 @@ export function AuthForm() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
   const [isLogin, setIsLogin] = useState(true);
   const [role, setRole] = useState<Role>(fromArchive ? "general" : "florist");
   const [loading, setLoading] = useState(false);
@@ -33,10 +34,12 @@ export function AuthForm() {
         router.push(userRole === "general" ? "/archive" : "/dashboard");
         router.refresh();
       } else {
+        if (!phone.trim()) throw new Error("전화번호를 입력해주세요.");
+
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { data: { role } },
+          options: { data: { role, phone } },
         });
         if (error) throw error;
         alert("회원가입이 완료되었습니다! 로그인해주세요.");
@@ -56,11 +59,7 @@ export function AuthForm() {
       <div className="flex flex-col items-center mb-8">
         <h1 className="text-3xl font-bold font-outfit text-[var(--warm-text)] mb-2">ON:HWA</h1>
         <p className="text-[var(--warm-muted)] font-medium text-sm">
-          {isLogin
-            ? isFlorist
-              ? "사장님 전용 매니지먼트 라운지"
-              : "내 포토카드 아카이브"
-            : "회원가입"}
+          {isLogin ? "맞춤형 꽃 큐레이션 플랫폼" : "회원가입"}
         </p>
       </div>
 
@@ -129,6 +128,20 @@ export function AuthForm() {
             placeholder="••••••••"
           />
         </div>
+
+        {!isLogin && (
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-bold text-[var(--warm-text)]">전화번호 (- 없이 입력)</label>
+            <input
+              type="tel"
+              required
+              value={phone}
+              onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, ""))}
+              className="warm-input"
+              placeholder="01012345678"
+            />
+          </div>
+        )}
 
         <button
           type="submit"

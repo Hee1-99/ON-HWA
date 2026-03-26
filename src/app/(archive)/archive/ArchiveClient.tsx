@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { saveArchive } from "@/app/actions/archiveActions";
-import { Loader2, ImageIcon } from "lucide-react";
+import { Loader2, ImageIcon, Plus } from "lucide-react";
+import Link from "next/link";
 
 interface Archive {
   id: string;
@@ -11,14 +12,25 @@ interface Archive {
   bouquet_id: string;
 }
 
+interface CustomRequest {
+  id: string;
+  occasion: string;
+  recipient_target: string;
+  status: string;
+  created_at: string;
+}
+
 export default function ArchiveClient({
   initialArchives,
+  myRequests,
   userId,
 }: {
   initialArchives: Archive[];
+  myRequests: CustomRequest[];
   userId: string;
 }) {
   const [archives, setArchives] = useState<Archive[]>(initialArchives);
+  const [requests] = useState<CustomRequest[]>(myRequests);
   const [isSaving, setIsSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState<string | null>(null);
 
@@ -58,9 +70,61 @@ export default function ArchiveClient({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+      {/* Action Banner */}
+      <div className="w-full bg-[var(--color-primary)] text-white rounded-2xl p-6 sm:p-8 flex items-center justify-between shadow-md mb-2">
+        <div className="flex flex-col gap-1">
+          <h2 className="font-outfit text-xl sm:text-2xl font-semibold">새로운 꽃다발이 필요한가요?</h2>
+          <p className="text-sm opacity-80">AI 큐레이터가 상황에 맞는 꽃과 메시지를 추천해 드립니다.</p>
+        </div>
+        <Link 
+          href="/archive/new-order" 
+          className="flex items-center gap-2 bg-[var(--warm-rose)] text-white px-5 py-3 rounded-xl font-bold text-sm shadow-sm hover:opacity-90 hover:scale-[1.02] transition-all whitespace-nowrap"
+        >
+          <Plus className="w-4 h-4" /> 맞춤 주문하기
+        </Link>
+      </div>
+
+      {requests.length > 0 && (
+        <div className="flex flex-col gap-4 mt-6">
+          <div className="flex items-center justify-between">
+            <h1 className="font-outfit text-2xl font-semibold text-[var(--color-primary)]">내 맞춤 주문</h1>
+            <span className="text-sm text-[var(--color-secondary)]">{requests.length}건</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {requests.map(req => {
+              const statusLabel = 
+                req.status === "pending" ? "요청됨 (견적 대기중)" :
+                req.status === "quoting" ? "사장님 참여 중 (견적 도착)" :
+                req.status === "awarded" || req.status === "completed" ? "매칭 완료!" : "종료됨";
+              
+              const isAwarded = req.status === "awarded" || req.status === "completed";
+
+              return (
+                <Link
+                  href={`/archive/orders/${req.id}`}
+                  key={req.id}
+                  className={`flex flex-col gap-3 p-5 rounded-2xl border transition-all hover:-translate-y-1 hover:shadow-md ${
+                    isAwarded ? "bg-[var(--warm-rose)]/5 border-[var(--warm-rose)]/20" : "bg-white border-gray-200"
+                  }`}
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-gray-400">{new Date(req.created_at).toLocaleDateString()}</span>
+                    <span className={`text-xs font-bold px-3 py-1 rounded-full ${isAwarded ? "bg-[var(--warm-rose)] text-white" : "bg-indigo-50 text-indigo-700"}`}>{statusLabel}</span>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <p className="text-sm text-gray-500 font-bold">{req.recipient_target} 님에게</p>
+                    <p className="font-medium text-[var(--color-primary)] truncate">{req.occasion}</p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between mt-8">
         <h1 className="font-outfit text-2xl font-semibold text-[var(--color-primary)]">
-          내 포토카드
+          내 포토카드 아카이브
         </h1>
         <span className="text-sm text-[var(--color-secondary)]">{archives.length}장</span>
       </div>

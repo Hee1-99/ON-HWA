@@ -37,7 +37,16 @@ export default async function DashboardPage() {
           <p className="text-gray-500 font-medium">나의 꽃다발 관리 및 판매 확정</p>
         </div>
         <div className="flex flex-col items-end gap-3">
-          <LogoutButton />
+          <div className="flex gap-2">
+            <Link 
+              href="/dashboard/requests" 
+              className="flex items-center gap-2 bg-indigo-50 text-indigo-700 border border-indigo-200 px-5 py-2.5 rounded-full font-bold shadow-sm hover:bg-indigo-100 transition-colors"
+            >
+              알림 <span className="w-5 h-5 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs">!</span>
+              새로운 요청 보기
+            </Link>
+            <LogoutButton />
+          </div>
           <Link 
             href="/bouquets/new" 
             className="flex items-center gap-2 bg-[var(--color-primary)] text-white px-5 py-2.5 rounded-full font-bold shadow-md hover:bg-black transition-colors"

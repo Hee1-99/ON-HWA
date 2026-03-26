@@ -1,0 +1,73 @@
+import { NextRequest, NextResponse } from "next/server";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+export async function POST(req: NextRequest) {
+  try {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json({ error: "AI 서비스가 설정되지 않았습니다." }, { status: 503 });
+    }
+    const genAI = new GoogleGenerativeAI(apiKey);
+
+    const body = await req.json();
+    const { recipient_target, occasion, budget } = body;
+
+    if (!recipient_target || !occasion) {
+      return NextResponse.json(
+        { error: "대상과 상황 정보가 필요합니다." },
+        { status: 400 }
+      );
+    }
+
+    // Initialize the model
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash",
+      generationConfig: {
+        responseMimeType: "application/json",
+      },
+      systemInstruction: `너는 꽃말과 한국 시문학에 해박한 감성적인 큐레이터/플로리스트야.
+유저가 입력한 선물 대상과 상황을 바탕으로, 꽃말이 담긴 맞춤형 꽃다발 구성과 감동적인 메시지를 추천해줘.
+
+[작성 제약사항 및 규칙]
+1. 추천 구성(recommendation): 상황에 어울리는 구체적인 꽃과 소재(그린)의 조합을 꽃말의 의미와 함께 2~3문장으로 제안할 것 (예: "끝없는 사랑을 의미하는 리시안셔스와...").
+2. 메시지(message): 카드에 적을 수 있는 짧고 시적인 축하/응원 메시지를 2~3문장 작성할 것. '당신', '소중한 분' 등 정중한 격식체를 사용할 것.
+3. 응답 형식: 반드시 JSON 형식으로 {"recommendation": "추천내용", "message": "편지내용"}만 반환할 것.`,
+    });
+
+    // Prepare prompt
+    let promptBase = `다음 조건에 맞춰 꽃다발을 큐레이션하고 메시지를 써줘.\n`;
+    promptBase += `- 선물 받는 대상: ${recipient_target}\n`;
+    promptBase += `- 증정 상황(이유): ${occasion}\n`;
+    if (budget) {
+      promptBase += `- 예산대: ${budget}\n`;
+    }
+
+    // Call the model
+    const result = await model.generateContent(promptBase);
+    const responseText = result.response.text();
+
+    try {
+      // Parse the JSON string
+      const jsonResponse = JSON.parse(responseText);
+      return NextResponse.json(jsonResponse);
+    } catch (parseError) {
+      console.error("JSON parsing error:", parseError, responseText);
+      return NextResponse.json(
+        { error: "AI 응답을 파싱하는데 실패했습니다." },
+        { status: 500 }
+      );
+    }
+  } catch (error: any) {
+    console.error("Gemini API Error:", error);
+    
+    let errorMessage = "AI 처리 중 오류가 발생했습니다.";
+    if (error?.status === 429 || error?.message?.includes("429") || error?.statusText === "Too Many Requests") {
+      errorMessage = "AI 요청 한도(무료 제공량)를 초과했습니다. 잠시 후 다시 시도해 주세요.";
+    }
+
+    return NextResponse.json(
+      { error: errorMessage },
+      { status: error?.status || 500 }
+    );
+  }
+}

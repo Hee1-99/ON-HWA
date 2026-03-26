@@ -95,12 +95,15 @@ export default function OrderNamingPanel({ aiFlowerRecommendation, quoteOccasion
         return;
       }
       const shareUrl = `${window.location.origin}/flower/${res.linkId}`;
+      const kakaoImageUrl = (res.imageUrl && !res.imageUrl.startsWith("data:"))
+        ? res.imageUrl
+        : "https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?q=80&w=800&auto=format&fit=crop";
       kakao.Share.sendDefault({
         objectType: "feed",
         content: {
           title: result.name,
           description: result.story.slice(0, 80) + (result.story.length > 80 ? "…" : ""),
-          imageUrl: "https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?q=80&w=800&auto=format&fit=crop",
+          imageUrl: kakaoImageUrl,
           link: { mobileWebUrl: shareUrl, webUrl: shareUrl },
         },
         buttons: [{ title: "꽃 이야기 보러가기", link: { mobileWebUrl: shareUrl, webUrl: shareUrl } }],

@@ -118,7 +118,7 @@ export async function createBouquet(name: string, story: string, imageUrl: strin
   }
 
   revalidatePath('/dashboard');
-  return { success: true, linkId: bouquet?.link_id as string | undefined };
+  return { success: true, linkId: bouquet?.link_id as string | undefined, imageUrl: finalImageUrl };
 }
 
 export async function confirmSale(bouquetId: string, recipientPhone: string) {

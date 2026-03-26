@@ -20,7 +20,7 @@ export default function NewCustomOrderPage() {
   });
   const [deliveryMethod, setDeliveryMethod] = useState<"픽업(매장방문)" | "배달">("픽업(매장방문)");
 
-  const [aiSuggest, setAiSuggest] = useState<{ recommendation: string; message: string } | null>(null);
+  const [aiSuggest, setAiSuggest] = useState<{ recommendation: string } | null>(null);
   const [submitLoading, setSubmitLoading] = useState(false);
 
   const handleAiCurate = async (e: React.FormEvent) => {
@@ -41,7 +41,7 @@ export default function NewCustomOrderPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "오류가 발생했습니다.");
       
-      setAiSuggest({ recommendation: data.recommendation, message: data.message });
+      setAiSuggest({ recommendation: data.recommendation });
       setStep(2);
     } catch (err: any) {
       setErrorMsg(err.message);
@@ -56,13 +56,12 @@ export default function NewCustomOrderPage() {
     setErrorMsg("");
     try {
        const finalOccasion = `[수령: ${deliveryMethod}] ${form.occasion}`;
-       
        const res = await createCustomRequest(
          form.recipient_target,
          finalOccasion,
          form.budget,
          aiSuggest.recommendation,
-         aiSuggest.message
+         ""
        );
        
        if (res.success) {
@@ -182,16 +181,8 @@ export default function NewCustomOrderPage() {
               <div className="bg-[#FFF8F5] p-6 rounded-2xl border border-[#F4E3DD] flex flex-col gap-4 relative">
                 <Sparkles className="absolute top-6 right-6 w-5 h-5 text-[#B46A55] opacity-20" />
                 <div>
-                  <h3 className="text-xs font-bold text-[var(--color-secondary)] mb-2">🌸 추천 꽃다발 구성</h3>
                   <p className="text-sm font-myeongjo text-[var(--color-primary)] leading-relaxed whitespace-pre-wrap">
                     {aiSuggest?.recommendation}
-                  </p>
-                </div>
-                <div className="w-full h-px bg-[#F4E3DD]" />
-                <div>
-                  <h3 className="text-xs font-bold text-[var(--color-secondary)] mb-2">💌 추천 편지 문구</h3>
-                  <p className="text-sm font-myeongjo text-[#B46A55] leading-relaxed whitespace-pre-wrap">
-                    {aiSuggest?.message}
                   </p>
                 </div>
               </div>

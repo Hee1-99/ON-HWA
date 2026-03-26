@@ -25,17 +25,16 @@ export async function POST(req: NextRequest) {
       generationConfig: {
         responseMimeType: "application/json",
       },
-      systemInstruction: `너는 꽃말과 한국 시문학에 해박한 감성적인 큐레이터/플로리스트야.
-유저가 입력한 선물 대상과 상황을 바탕으로, 꽃말이 담긴 맞춤형 꽃다발 구성과 감동적인 메시지를 추천해줘.
+      systemInstruction: `너는 꽃말에 해박한 플로리스트야.
+유저가 입력한 선물 대상과 상황을 바탕으로, 꽃말이 담긴 맞춤형 꽃다발 구성을 추천해줘.
 
 [작성 제약사항 및 규칙]
 1. 추천 구성(recommendation): 반드시 "O를 뜻하는 A, P를 뜻하는 B, ...의 구성을 추천합니다." 형태의 명확한 문장으로 출력할 것. 사장님이 어떤 꽃을 넣어야 하는지 단번에 파악할 수 있도록 엄격하게 이 양식을 지킬 것.
-2. 메시지(message): 카드에 적을 수 있는 짧고 시적인 축하/응원 메시지를 2~3문장 작성할 것. '당신', '소중한 분' 등 정중한 격식체를 사용할 것.
-3. 응답 형식: 반드시 JSON 형식으로 {"recommendation": "추천내용", "message": "편지내용"}만 반환할 것.`,
+2. 응답 형식: 반드시 JSON 형식으로 {"recommendation": "추천내용"}만 반환할 것.`,
     });
 
     // Prepare prompt
-    let promptBase = `다음 조건에 맞춰 꽃다발을 큐레이션하고 메시지를 써줘.\n`;
+    let promptBase = `다음 조건에 맞춰 꽃다발을 추천해줘.\n`;
     promptBase += `- 선물 받는 대상: ${recipient_target}\n`;
     promptBase += `- 증정 상황(이유): ${occasion}\n`;
     if (budget) {

@@ -72,7 +72,7 @@ export default function BuyerOrderClient({ request, initialQuotes }: { request: 
             <p className="font-myeongjo text-[var(--color-primary)] bg-white p-4 rounded-xl shadow-sm border border-gray-100 h-full">{request.occasion} (누구에게: {request.recipient_target})</p>
           </div>
           <div className="flex flex-col gap-2">
-            <span className="text-sm font-bold text-gray-500">AI 큐레이션 구성</span>
+            <span className="text-sm font-bold text-gray-500">AI 추천 구성</span>
             <p className="font-myeongjo text-[var(--color-primary)] bg-white p-4 rounded-xl shadow-sm border border-gray-100 h-full">{request.ai_flower_recommendation}</p>
           </div>
         </div>

@@ -99,10 +99,10 @@ export default function RequestsClient({
                     <p className="text-sm text-gray-700 leading-relaxed"><strong className="text-gray-900">상황 & 대상:</strong> {req.occasion} (받는 분: {req.recipient_target})</p>
                   </div>
                   <div className="flex gap-2 items-start">
-                    <MessageSquare className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
+                    <Sparkles className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
                     <div className="text-sm text-gray-700 leading-relaxed">
-                      <strong className="text-gray-900 block mb-1">AI 큐레이션:</strong>
-                      <span className="bg-gray-50 p-3 rounded-lg block border">{req.ai_flower_recommendation}</span>
+                      <strong className="text-gray-900 block mb-1">AI 추천 구성:</strong>
+                      <span className="bg-gray-50 p-3 rounded-lg block border leading-relaxed break-keep">{req.ai_flower_recommendation}</span>
                     </div>
                   </div>
                 </div>

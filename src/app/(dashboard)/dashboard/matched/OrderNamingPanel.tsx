@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Upload, Loader2, Sparkles, RefreshCw, Check, X, MessageCircle } from "lucide-react";
 import { createBouquet } from "@/app/actions/bouquetActions";
+import { saveQuoteNaming } from "@/app/actions/quoteNamingActions";
 
 const DEFAULT_TONE = "비격식체 (반말/해요체 섞임)";
 
@@ -13,6 +14,7 @@ export interface SavedNaming {
 }
 
 interface Props {
+  quoteId: string;
   aiFlowerRecommendation: string;
   quoteOccasion: string;
   recipientTarget: string;
@@ -20,7 +22,7 @@ interface Props {
   onClose: (saved?: SavedNaming) => void;
 }
 
-export default function OrderNamingPanel({ aiFlowerRecommendation, quoteOccasion, recipientTarget, initialData, onClose }: Props) {
+export default function OrderNamingPanel({ quoteId, aiFlowerRecommendation, quoteOccasion, recipientTarget, initialData, onClose }: Props) {
   const [image, setImage] = useState<string | null>(initialData?.image ?? null);
   const [extraNote, setExtraNote] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -31,10 +33,12 @@ export default function OrderNamingPanel({ aiFlowerRecommendation, quoteOccasion
   const [isSaving, setIsSaving] = useState(false);
   const [sharedLinkId, setSharedLinkId] = useState<string | null>(null);
 
-  const handleClose = () => {
-    // result가 있으면 저장된 데이터와 함께 닫기
+  const handleClose = async () => {
     if (result) {
-      onClose({ name: result.name, story: result.story, image });
+      // DB에 저장
+      const res = await saveQuoteNaming(quoteId, result.name, result.story, image);
+      const savedImage = (res.success && res.cardImgUrl) ? res.cardImgUrl : image;
+      onClose({ name: result.name, story: result.story, image: savedImage ?? null });
     } else {
       onClose();
     }

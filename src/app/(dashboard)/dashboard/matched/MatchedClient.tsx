@@ -7,7 +7,17 @@ import OrderNamingPanel, { type SavedNaming } from "./OrderNamingPanel";
 
 export default function MatchedClient({ acceptedQuotes }: { acceptedQuotes: any[] }) {
   const [activeQuoteId, setActiveQuoteId] = useState<string | null>(null);
-  const [savedNamings, setSavedNamings] = useState<Record<string, SavedNaming>>({});
+
+  // DB에서 불러온 ai_name/ai_story/card_img_url로 초기 상태 구성
+  const [savedNamings, setSavedNamings] = useState<Record<string, SavedNaming>>(() => {
+    const initial: Record<string, SavedNaming> = {};
+    for (const q of acceptedQuotes) {
+      if (q.ai_name && q.ai_story) {
+        initial[q.id] = { name: q.ai_name, story: q.ai_story, image: q.card_img_url ?? null };
+      }
+    }
+    return initial;
+  });
 
   const handlePanelClose = (quoteId: string, saved?: SavedNaming) => {
     if (saved) {
@@ -37,11 +47,9 @@ export default function MatchedClient({ acceptedQuotes }: { acceptedQuotes: any[
 
         return (
           <div key={quote.id} className="flex flex-col">
-            {/* 카드 */}
             <div className="bg-white rounded-3xl border border-indigo-100 shadow-sm p-6 sm:p-8 flex flex-col gap-6 relative overflow-hidden group hover:shadow-lg hover:border-indigo-300 transition-all">
               <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-bl-[100px] pointer-events-none -z-10 transition-transform group-hover:scale-110" />
 
-              {/* 상단: 가격 + 날짜 */}
               <div className="flex justify-between items-start z-10 border-b border-gray-50 pb-4">
                 <div className="flex flex-col gap-1">
                   <span className="text-xs font-bold text-indigo-400 flex items-center gap-1" suppressHydrationWarning>
@@ -59,7 +67,6 @@ export default function MatchedClient({ acceptedQuotes }: { acceptedQuotes: any[
                 </div>
               </div>
 
-              {/* 고객 요청 */}
               <div className="flex flex-col gap-4 z-10">
                 <div className="flex gap-3">
                   <div className="w-8 h-8 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 mt-0.5">
@@ -76,13 +83,11 @@ export default function MatchedClient({ acceptedQuotes }: { acceptedQuotes: any[
                   </div>
                 </div>
 
-                {/* 내 견적 */}
                 <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
                   <span className="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-2">내가 보낸 견적 메시지</span>
                   <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{quote.description}</p>
                 </div>
 
-                {/* 구매자 연락처 */}
                 <div className="bg-indigo-50 rounded-xl p-4 border border-indigo-100 flex flex-col gap-2">
                   <p className="text-sm font-bold text-indigo-900 border-b border-indigo-200 pb-2 flex items-center gap-2">
                     <Phone className="w-4 h-4" /> 구매자 연락처: {quote.buyer_phone}
@@ -92,7 +97,6 @@ export default function MatchedClient({ acceptedQuotes }: { acceptedQuotes: any[
                   </p>
                 </div>
 
-                {/* 서사 버튼 */}
                 <button
                   type="button"
                   onClick={() => setActiveQuoteId(isActive ? null : quote.id)}
@@ -110,9 +114,9 @@ export default function MatchedClient({ acceptedQuotes }: { acceptedQuotes: any[
               </div>
             </div>
 
-            {/* 인라인 네이밍 패널 */}
             {isActive && (
               <OrderNamingPanel
+                quoteId={quote.id}
                 aiFlowerRecommendation={quote.request?.ai_flower_recommendation ?? ""}
                 quoteOccasion={quote.request?.occasion ?? ""}
                 recipientTarget={quote.request?.recipient_target ?? ""}

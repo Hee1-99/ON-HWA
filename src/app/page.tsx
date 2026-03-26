@@ -1,6 +1,7 @@
 import { Flower2, Sparkles, Camera, ArrowRight, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import LogoutButton from "@/components/LogoutButton";
 
 export default async function LandingPage() {
   const supabase = await createClient();
@@ -21,19 +22,22 @@ export default async function LandingPage() {
           </span>
         </Link>
 
-        <nav className="ml-auto flex items-center gap-8">
+        <nav className="ml-auto flex items-center gap-4 sm:gap-8">
           <Link
-            className="text-sm font-medium uppercase tracking-wide text-[var(--color-secondary)] hover:text-[var(--color-primary)] transition-colors"
+            className="hidden sm:block text-sm font-medium uppercase tracking-wide text-[var(--color-secondary)] hover:text-[var(--color-primary)] transition-colors"
             href="#features"
           >
             주요 기능
           </Link>
-          <Link
-            href={dashHref}
-            className="text-sm font-medium uppercase tracking-wide bg-[var(--color-primary)] text-white px-5 py-2 hover:opacity-80 transition-opacity"
-          >
-            {dashLabel}
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href={dashHref}
+              className="text-sm font-medium uppercase tracking-wide bg-[var(--color-primary)] text-white px-5 py-2 hover:opacity-80 transition-opacity"
+            >
+              {dashLabel}
+            </Link>
+            {user && <LogoutButton />}
+          </div>
         </nav>
       </header>
 

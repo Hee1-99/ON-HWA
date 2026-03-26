@@ -132,8 +132,6 @@ export default function RecipientView({ bouquet }: { bouquet: any }) {
             <PhotoCardBuilder
               bouquetId={bouquet.id}
               flowerName={bouquet.ai_name}
-              bouquetStory={bouquet.ai_story ?? ""}
-              imageUrl={bouquet.original_img_url ?? ""}
             />
           </div>
         </div>

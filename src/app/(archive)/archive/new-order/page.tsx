@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Sparkles, ArrowRight, Loader2, ArrowLeft, Send } from "lucide-react";
+import { Sparkles, ArrowRight, Loader2, ArrowLeft, Send, Truck, Store } from "lucide-react";
 import Link from "next/link";
 import { createCustomRequest } from "@/app/actions/orderActions";
 
@@ -18,6 +18,7 @@ export default function NewCustomOrderPage() {
     occasion: "",
     budget: "",
   });
+  const [deliveryMethod, setDeliveryMethod] = useState<"픽업(매장방문)" | "배달">("픽업(매장방문)");
 
   const [aiSuggest, setAiSuggest] = useState<{ recommendation: string; message: string } | null>(null);
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -54,9 +55,11 @@ export default function NewCustomOrderPage() {
     setSubmitLoading(true);
     setErrorMsg("");
     try {
+       const finalOccasion = `[수령: ${deliveryMethod}] ${form.occasion}`;
+       
        const res = await createCustomRequest(
          form.recipient_target,
-         form.occasion,
+         finalOccasion,
          form.budget,
          aiSuggest.recommendation,
          aiSuggest.message
@@ -131,6 +134,32 @@ export default function NewCustomOrderPage() {
                 placeholder="예) 5~7만원대, 너무 크지 않은 아담한 사이즈"
                 className="warm-input bg-gray-50 border-gray-200 focus:bg-white"
               />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-bold text-[var(--warm-text)]">수령 방법 *</label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setDeliveryMethod("픽업(매장방문)")}
+                  className={`flex flex-col items-center justify-center py-4 rounded-xl border-2 transition-all gap-2 font-bold ${
+                    deliveryMethod === "픽업(매장방문)" ? "border-[var(--warm-rose)] bg-[var(--warm-rose)]/5 text-[var(--color-primary)]" : "border-gray-200 text-gray-400 hover:border-[var(--warm-rose)]/30"
+                  }`}
+                >
+                  <Store className="w-5 h-5" />
+                  픽업 (매장 방문)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDeliveryMethod("배달")}
+                  className={`flex flex-col items-center justify-center py-4 rounded-xl border-2 transition-all gap-2 font-bold ${
+                    deliveryMethod === "배달" ? "border-[var(--warm-rose)] bg-[var(--warm-rose)]/5 text-[var(--color-primary)]" : "border-gray-200 text-gray-400 hover:border-[var(--warm-rose)]/30"
+                  }`}
+                >
+                  <Truck className="w-5 h-5" />
+                  배달 (퀵/배송)
+                </button>
+              </div>
             </div>
 
             <button

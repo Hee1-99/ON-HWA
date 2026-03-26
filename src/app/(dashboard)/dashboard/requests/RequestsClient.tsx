@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { submitQuote } from "@/app/actions/orderActions";
-import { CheckCircle, Loader2, Send, Clock, User, MessageSquare } from "lucide-react";
+import { CheckCircle, Loader2, Send, Clock, User, MessageSquare, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 interface CustomRequest {

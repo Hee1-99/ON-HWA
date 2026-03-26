@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import PhotoCardBuilder from "@/components/card/PhotoCardBuilder";
+import { MessageCircle } from "lucide-react";
 
 export default function RecipientView({ bouquet }: { bouquet: any }) {
   const [typedName, setTypedName] = useState("");
@@ -41,7 +42,38 @@ export default function RecipientView({ bouquet }: { bouquet: any }) {
       </span>
     ));
   };
+  const handleKakaoShare = () => {
+    const kakao = (window as any).Kakao;
+    if (!kakao?.isInitialized()) {
+      alert("카카오톡 기능을 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+      return;
+    }
 
+    const shareUrl = window.location.href;
+    const description = bouquet.ai_story || "";
+    
+    kakao.Share.sendDefault({
+      objectType: "feed",
+      content: {
+        title: `ON:HWA - ${bouquet.ai_name}`,
+        description: description.slice(0, 80) + (description.length > 80 ? "..." : ""),
+        imageUrl: bouquet.original_img_url || 'https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?q=80&w=800&auto=format&fit=crop',
+        link: {
+          mobileWebUrl: shareUrl,
+          webUrl: shareUrl,
+        },
+      },
+      buttons: [
+        {
+          title: "꽃 이야기 보러가기",
+          link: {
+            mobileWebUrl: shareUrl,
+            webUrl: shareUrl,
+          },
+        },
+      ],
+    });
+  };
   return (
     <div className="max-w-md mx-auto w-full min-h-screen flex flex-col font-sans pb-20">
       
@@ -67,10 +99,21 @@ export default function RecipientView({ bouquet }: { bouquet: any }) {
 
       {/* 시적 서사 */}
       <div className="px-4 mt-2">
-        <div className="unboxing-story-section shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500 [animation-fill-mode:both]">
+        <div className="unboxing-story-section shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500 [animation-fill-mode:both] relative">
           <div className="unboxing-story-deco text-[var(--warm-rose)]">✧</div>
           <div className="unboxing-story-body">
             {formatStory(bouquet.ai_story)}
+          </div>
+          
+          {/* 카톡 공유 버튼 */}
+          <div className="mt-8 pt-6 border-t border-[var(--warm-border)]/50 flex flex-col items-center">
+             <button
+               onClick={handleKakaoShare}
+               className="flex items-center gap-2 bg-[#FEE500] text-[#3A1D1D] px-6 py-3 rounded-2xl text-sm font-bold hover:bg-[#FEE500]/90 transition-all shadow-sm"
+             >
+               <MessageCircle className="w-4 h-4" /> 꽃 이야기 카톡으로 전달하기
+             </button>
+             <p className="text-[10px] text-gray-400 mt-3">소중한 분에게 이 서사를 함께 보내보세요.</p>
           </div>
         </div>
       </div>

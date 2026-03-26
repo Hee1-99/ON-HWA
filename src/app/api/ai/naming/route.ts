@@ -10,14 +10,7 @@ export async function POST(req: NextRequest) {
     const genAI = new GoogleGenerativeAI(apiKey);
 
     const body = await req.json();
-    const { image, mimeType, tag, tone, flowers } = body;
-
-    if (!image) {
-      return NextResponse.json(
-        { error: "이미지 데이터가 제공되지 않았습니다." },
-        { status: 400 }
-      );
-    }
+    const { image, mimeType, tag, tone, flowers, recipientTarget } = body;
 
     // Initialize the model
     const model = genAI.getGenerativeModel({
@@ -26,7 +19,7 @@ export async function POST(req: NextRequest) {
         responseMimeType: "application/json",
       },
       systemInstruction: `너는 꽃말과 한국 시문학에 해박한 감성적인 큐레이터/플로리스트야.
-사진 속 꽃의 시각적 특징, 유저가 입력한 꽃/그린 종류, 증정 상황, 요청된 문체(격식/비격식)를 종합하여 마치 한 편의 짧은 시나 수필 같은 네이밍과 서사를 지어줘.
+유저가 입력한 꽃/그린 종류, 증정 상황, 수령인 정보, 요청된 문체(격식/비격식)를 종합하여 마치 한 편의 짧은 시나 수필 같은 네이밍과 서사를 지어줘.
 
 [작성 제약사항 및 규칙]
 1. 네이밍(name): 시적이고 함축적인 **4~7자**의 짧은 이름으로 지어줄 것.
@@ -37,21 +30,16 @@ export async function POST(req: NextRequest) {
 6. 응답 형식: 반드시 JSON 형식으로 {"name": "이름", "story": "서사내용"}만 반환할 것.`,
     });
 
-    // Prepare image for Gemini API
-    const imagePart = {
-      inlineData: {
-        data: image, // base64 string
-        mimeType: mimeType || "image/jpeg",
-      },
-    };
-
     // Prepare prompt with injected variables
     let promptBase = "다음 조건에 맞춰 꽃다발 이름과 스토리를 지어줘.\n";
     if (flowers && flowers.length > 0) {
-      promptBase += `- 포함된 꽃/그린 종류: ${flowers.join(", ")}\n`;
+      promptBase += `- 포함된 꽃/그린 종류 및 견적 정보: ${flowers.join(", ")}\n`;
     }
     if (tag) {
       promptBase += `- 증정 상황: ${tag}\n`;
+    }
+    if (recipientTarget) {
+      promptBase += `- 수령인: ${recipientTarget}\n`;
     }
     if (tone) {
       promptBase += `- 문체: ${tone}\n`;
@@ -60,11 +48,13 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Call the model
-    const result = await model.generateContent([
-      promptBase,
-      imagePart,
-    ]);
+    // Call the model — image is optional (text-only mode for custom orders)
+    const parts: any[] = [promptBase];
+    if (image) {
+      parts.push({ inlineData: { data: image, mimeType: mimeType || "image/jpeg" } });
+    }
+
+    const result = await model.generateContent(parts);
     
     const responseText = result.response.text();
 

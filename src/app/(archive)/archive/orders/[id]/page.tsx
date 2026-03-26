@@ -4,7 +4,10 @@ import BuyerOrderClient from "./BuyerOrderClient";
 
 export const dynamic = "force-dynamic";
 
-export default async function BuyerOrderPage({ params }: { params: { id: string } }) {
+export default async function BuyerOrderPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const id = resolvedParams.id;
+  
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -16,7 +19,7 @@ export default async function BuyerOrderPage({ params }: { params: { id: string 
   const { data: request, error: reqError } = await admin
     .from("custom_requests")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (reqError || !request || request.buyer_id !== user.id) {
@@ -33,7 +36,7 @@ export default async function BuyerOrderPage({ params }: { params: { id: string 
         slug
       )
     `)
-    .eq("request_id", params.id)
+    .eq("request_id", id)
     .order("price", { ascending: true });
 
   const formattedQuotes = (quotes || []).map(q => ({

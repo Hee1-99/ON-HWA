@@ -58,9 +58,6 @@ export function AuthForm() {
     <div className="w-full max-w-md bg-[var(--warm-card)] rounded-2xl p-8 border-2 border-[var(--warm-border)] shadow-[0_8px_32px_rgba(180,100,80,0.08)]">
       <div className="flex flex-col items-center mb-8">
         <h1 className="text-3xl font-bold font-outfit text-[var(--warm-text)] mb-2">ON:HWA</h1>
-        <p className="text-[var(--warm-muted)] font-medium text-sm">
-          {isLogin ? "맞춤형 꽃 큐레이션 플랫폼" : "회원가입"}
-        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">

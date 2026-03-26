@@ -74,7 +74,7 @@ export default function ArchiveClient({
       <div className="w-full bg-[var(--color-primary)] text-white rounded-2xl p-6 sm:p-8 flex items-center justify-between shadow-md mb-2">
         <div className="flex flex-col gap-1">
           <h2 className="font-outfit text-xl sm:text-2xl font-semibold">새로운 꽃다발이 필요한가요?</h2>
-          <p className="text-sm opacity-80">AI 큐레이터가 상황에 맞는 꽃과 메시지를 추천해 드립니다.</p>
+          <p className="text-sm opacity-80">AI 큐레이터가 개인 맞춤형 꽃 구성을 추천드립니다.</p>
         </div>
         <Link 
           href="/archive/new-order" 

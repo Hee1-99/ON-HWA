@@ -83,7 +83,6 @@ export function AuthForm() {
               >
                 <Store className="w-5 h-5 text-[var(--warm-rose)]" />
                 <span className="text-sm font-bold text-[var(--warm-text)]">사장님</span>
-                <span className="text-xs text-[var(--warm-muted)]">꽃집 운영</span>
               </button>
               <button
                 type="button"
@@ -96,7 +95,6 @@ export function AuthForm() {
               >
                 <Flower2 className="w-5 h-5 text-[var(--warm-rose)]" />
                 <span className="text-sm font-bold text-[var(--warm-text)]">일반 회원</span>
-                <span className="text-xs text-[var(--warm-muted)]">포토카드 보관</span>
               </button>
             </div>
           </div>

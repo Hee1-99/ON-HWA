@@ -1,7 +1,7 @@
+import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/serverAdmin";
 import LogoutButton from "@/components/LogoutButton";
-
 import Link from "next/link";
 import { Flower2, Inbox, MessageSquareShare, ArrowRight } from "lucide-react";
 
@@ -11,18 +11,42 @@ export default async function DashboardPortalPage() {
 
   if (!user) return null;
 
+  return (
+    <div className="container mx-auto p-6 max-w-4xl min-h-screen">
+      <Suspense fallback={<DashboardSkeleton />}>
+        <DashboardData userId={user.id} />
+      </Suspense>
+    </div>
+  );
+}
+
+function DashboardSkeleton() {
+  return (
+    <>
+      <div className="flex justify-between items-center mb-12">
+        <div className="h-9 w-60 bg-gray-200 rounded-lg animate-pulse" />
+        <div className="h-9 w-20 bg-gray-200 rounded-lg animate-pulse" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="h-64 bg-gray-100 rounded-3xl animate-pulse border border-gray-200" />
+        ))}
+      </div>
+    </>
+  );
+}
+
+async function DashboardData({ userId }: { userId: string }) {
   const admin = createAdminClient();
 
-  // Fetch shop info
   const { data: shop } = await admin
-    .from('shops')
-    .select('id, name')
-    .eq('owner_id', user.id)
+    .from("shops")
+    .select("id, name")
+    .eq("owner_id", userId)
     .single();
 
   const shopName = shop?.name || "사장님";
 
-  // Fetch quick stats
   const { count: pendingRequestsCount } = await admin
     .from("custom_requests")
     .select("*", { count: "exact", head: true })
@@ -41,7 +65,7 @@ export default async function DashboardPortalPage() {
     .neq("status", "custom_order");
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl min-h-screen">
+    <>
       <div className="flex justify-between items-center mb-12">
         <h1 className="text-3xl font-bold font-outfit text-[var(--color-primary)]">
           {shopName}의 대시보드
@@ -50,7 +74,7 @@ export default async function DashboardPortalPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
+
         {/* Card 1: Products */}
         <Link href="/dashboard/products" className="group flex flex-col justify-between bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all h-64">
           <div className="flex flex-col gap-4">
@@ -107,6 +131,6 @@ export default async function DashboardPortalPage() {
         </Link>
 
       </div>
-    </div>
+    </>
   );
 }

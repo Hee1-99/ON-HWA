@@ -1,28 +1,15 @@
+import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/serverAdmin";
 import DashboardClient from "@/components/dashboard/DashboardClient";
-
 import Link from "next/link";
 import { Plus, ArrowLeft } from "lucide-react";
+
+export const revalidate = 60;
 
 export default async function ProductsPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-
-  const admin = createAdminClient();
-
-  let displayBouquets: any[] = [];
-
-  if (user) {
-    const { data } = await admin
-      .from('bouquets')
-      .select('*, shops!inner(owner_id)')
-      .eq('shops.owner_id', user.id)
-      .neq('status', 'custom_order')
-      .order('created_at', { ascending: false });
-
-    displayBouquets = data ?? [];
-  }
 
   return (
     <div className="container mx-auto p-6 max-w-5xl min-h-screen">
@@ -37,8 +24,8 @@ export default async function ProductsPage() {
           <p className="text-gray-500 font-medium">나의 꽃다발 큐레이션 및 판매 상태 변경</p>
         </div>
         <div className="flex items-end gap-3">
-          <Link 
-            href="/bouquets/new" 
+          <Link
+            href="/bouquets/new"
             className="flex items-center gap-2 bg-[var(--color-primary)] text-white px-5 py-2.5 rounded-full font-bold shadow-md hover:bg-black transition-colors"
           >
             <Plus className="w-5 h-5" />
@@ -46,9 +33,34 @@ export default async function ProductsPage() {
           </Link>
         </div>
       </div>
-      
-      <DashboardClient initialBouquets={displayBouquets} />
 
+      <Suspense fallback={<ProductsSkeleton />}>
+        <ProductsData userId={user?.id} />
+      </Suspense>
     </div>
   );
+}
+
+function ProductsSkeleton() {
+  return (
+    <div className="flex flex-col gap-4">
+      {[0, 1, 2, 3].map((i) => (
+        <div key={i} className="h-24 bg-gray-100 rounded-2xl animate-pulse border border-gray-200" />
+      ))}
+    </div>
+  );
+}
+
+async function ProductsData({ userId }: { userId?: string }) {
+  if (!userId) return <DashboardClient initialBouquets={[]} />;
+
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("bouquets")
+    .select("*, shops!inner(owner_id)")
+    .eq("shops.owner_id", userId)
+    .neq("status", "custom_order")
+    .order("created_at", { ascending: false });
+
+  return <DashboardClient initialBouquets={data ?? []} />;
 }

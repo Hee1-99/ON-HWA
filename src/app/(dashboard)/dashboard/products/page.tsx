@@ -19,9 +19,9 @@ export default async function ProductsPage() {
             <ArrowLeft className="w-4 h-4" /> 뒤로 가기
           </Link>
           <h1 className="text-3xl font-bold font-outfit text-[var(--color-primary)] flex items-center gap-3">
-            판매중인 상품 관리
+            쇼케이스
           </h1>
-          <p className="text-gray-500 font-medium">나의 꽃다발 큐레이션 및 판매 상태 변경</p>
+          <p className="text-gray-500 font-medium">꽃다발 AI 네이밍 및 판매 상태 관리</p>
         </div>
         <div className="flex items-end gap-3">
           <Link

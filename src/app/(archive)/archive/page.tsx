@@ -47,17 +47,18 @@ function ArchiveSkeleton() {
 async function ArchiveData({ userId }: { userId: string }) {
   const admin = createAdminClient();
 
-  const { data: archives } = await admin
-    .from("archives")
-    .select("*")
-    .eq("visitor_id", userId)
-    .order("created_at", { ascending: false });
-
-  const { data: myRequests } = await admin
-    .from("custom_requests")
-    .select("*")
-    .eq("buyer_id", userId)
-    .order("created_at", { ascending: false });
+  const [{ data: archives }, { data: myRequests }] = await Promise.all([
+    admin
+      .from("archives")
+      .select("*")
+      .eq("visitor_id", userId)
+      .order("created_at", { ascending: false }),
+    admin
+      .from("custom_requests")
+      .select("*")
+      .eq("buyer_id", userId)
+      .order("created_at", { ascending: false }),
+  ]);
 
   return (
     <ArchiveClient

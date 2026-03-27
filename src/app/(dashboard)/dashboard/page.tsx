@@ -47,22 +47,26 @@ async function DashboardData({ userId }: { userId: string }) {
 
   const shopName = shop?.name || "사장님";
 
-  const { count: pendingRequestsCount } = await admin
-    .from("custom_requests")
-    .select("*", { count: "exact", head: true })
-    .in("status", ["pending", "quoting"]);
-
-  const { count: matchedOrdersCount } = await admin
-    .from("custom_quotes")
-    .select("*", { count: "exact", head: true })
-    .eq("shop_id", shop?.id)
-    .eq("status", "accepted");
-
-  const { count: myProductsCount } = await admin
-    .from("bouquets")
-    .select("*", { count: "exact", head: true })
-    .eq("shop_id", shop?.id)
-    .neq("status", "custom_order");
+  const [
+    { count: pendingRequestsCount },
+    { count: matchedOrdersCount },
+    { count: myProductsCount },
+  ] = await Promise.all([
+    admin
+      .from("custom_requests")
+      .select("*", { count: "exact", head: true })
+      .in("status", ["pending", "quoting"]),
+    admin
+      .from("custom_quotes")
+      .select("*", { count: "exact", head: true })
+      .eq("shop_id", shop?.id)
+      .eq("status", "accepted"),
+    admin
+      .from("bouquets")
+      .select("*", { count: "exact", head: true })
+      .eq("shop_id", shop?.id)
+      .neq("status", "custom_order"),
+  ]);
 
   return (
     <>

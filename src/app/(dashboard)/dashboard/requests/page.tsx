@@ -42,22 +42,23 @@ function RequestsSkeleton() {
 async function RequestsData({ userId }: { userId: string }) {
   const admin = createAdminClient();
 
-  const { data: requests, error } = await admin
-    .from("custom_requests")
-    .select("*")
-    .in("status", ["pending", "quoting"])
-    .order("created_at", { ascending: false });
+  const [{ data: requests, error }, { data: shop }] = await Promise.all([
+    admin
+      .from("custom_requests")
+      .select("*")
+      .in("status", ["pending", "quoting"])
+      .order("created_at", { ascending: false }),
+    admin
+      .from("shops")
+      .select("id")
+      .eq("owner_id", userId)
+      .single(),
+  ]);
 
   if (error) {
     console.error("Error fetching requests:", error);
     return <div>오류가 발생했습니다.</div>;
   }
-
-  const { data: shop } = await admin
-    .from("shops")
-    .select("id")
-    .eq("owner_id", userId)
-    .single();
 
   let myQuotes: any[] = [];
   if (shop) {

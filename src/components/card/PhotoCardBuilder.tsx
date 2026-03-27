@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import html2canvas from "html2canvas";
 import { Download, Loader2, Image as ImageIcon, Archive } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -14,6 +15,7 @@ interface PhotoCardBuilderProps {
 }
 
 export default function PhotoCardBuilder({ bouquetId, flowerName }: PhotoCardBuilderProps) {
+  const router = useRouter();
   const [photo, setPhoto] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
@@ -81,7 +83,7 @@ export default function PhotoCardBuilder({ bouquetId, flowerName }: PhotoCardBui
       } else {
         // Not logged in (or wrong role) — save to sessionStorage and go to login
         sessionStorage.setItem("pendingArchive", JSON.stringify({ dataUrl, bouquetId }));
-        window.location.href = "/login?from=archive";
+        router.push("/login?from=archive");
       }
     } catch (error) {
       console.error("아카이빙 실패:", error);

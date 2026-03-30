@@ -67,7 +67,7 @@ export default function GiftShareSection({
 
   function triggerKakaoShare(name: string) {
     if (!window.Kakao?.Share) return;
-    const pageUrl = `${window.location.origin}/flower/${linkId}`;
+    const pageUrl = `${window.location.origin}/card/${linkId}`;
 
     const options: KakaoShareOptions = {
       objectType: "feed",

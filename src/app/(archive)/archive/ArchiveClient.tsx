@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { saveArchive } from "@/app/actions/archiveActions";
+import { createClient } from "@/lib/supabase/client";
+import { saveArchiveRecord } from "@/app/actions/archiveActions";
 import { Loader2, ImageIcon, Plus } from "lucide-react";
 import Link from "next/link";
 
@@ -47,24 +48,36 @@ export default function ArchiveClient({
     }
 
     setIsSaving(true);
-    saveArchive(parsed.bouquetId, parsed.dataUrl, userId)
-      .then((res) => {
-        if (res.success && res.url) {
-          setArchives((prev) => [
-            {
-              id: Date.now().toString(),
-              card_img_url: res.url!,
-              created_at: new Date().toISOString(),
-              bouquet_id: parsed.bouquetId,
-            },
-            ...prev,
-          ]);
-          setSaveMsg("포토카드가 아카이빙되었습니다!");
-        } else {
-          setSaveMsg("아카이빙 중 오류가 발생했습니다: " + res.error);
-        }
+    const supabase = createClient();
+    const fileName = `${parsed.bouquetId}/${Date.now()}.jpg`;
+
+    fetch(parsed.dataUrl)
+      .then((r) => r.blob())
+      .then(async (blob) => {
+        const { error: uploadError } = await supabase.storage
+          .from("archives")
+          .upload(fileName, blob, { contentType: "image/jpeg", upsert: false });
+        if (uploadError) throw new Error(uploadError.message);
+
+        const { data: { publicUrl } } = supabase.storage
+          .from("archives")
+          .getPublicUrl(fileName);
+
+        const result = await saveArchiveRecord(parsed.bouquetId, publicUrl, userId);
+        if (!result.success) throw new Error(result.error ?? "DB 저장 실패");
+
+        setArchives((prev) => [
+          {
+            id: Date.now().toString(),
+            card_img_url: publicUrl,
+            created_at: new Date().toISOString(),
+            bouquet_id: parsed.bouquetId,
+          },
+          ...prev,
+        ]);
+        setSaveMsg("포토카드가 아카이빙되었습니다!");
       })
-      .catch(() => setSaveMsg("네트워크 오류가 발생했습니다."))
+      .catch((e: Error) => setSaveMsg("아카이빙 중 오류가 발생했습니다: " + e.message))
       .finally(() => setIsSaving(false));
   }, [userId]);
 

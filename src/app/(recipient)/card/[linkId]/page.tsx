@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/serverAdmin";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import UnboxingReveal from "./UnboxingReveal";
@@ -11,9 +11,9 @@ interface Props {
 
 export default async function RecipientCardPage({ params }: Props) {
   const { linkId } = await params;
-  const supabase = await createClient();
+  const admin = createAdminClient();
 
-  const { data: bouquet } = await supabase
+  const { data: bouquet } = await admin
     .from("bouquets")
     .select("id, ai_name, ai_story, original_img_url, link_id")
     .eq("link_id", linkId)

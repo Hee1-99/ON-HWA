@@ -86,8 +86,9 @@ async function DashboardData({ userId }: { userId: string }) {
               <Flower2 className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-[var(--color-primary)]">쇼케이스</h2>
-              <p className="text-sm text-gray-500 mt-1">꽃다발 쇼케이스 등록 및 판매 상태 관리</p>
+              <h2 className="text-xl font-bold text-[var(--color-primary)] font-outfit uppercase tracking-tight">쇼케이스</h2>
+              <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest font-bold">Florist Portfolio</p>
+              <p className="text-sm text-gray-500 mt-2">포토그래퍼이자 큐레이터로서의 사장님 꽃다발 포트폴리오 관리</p>
             </div>
           </div>
           <div className="flex items-center justify-between border-t pt-4">

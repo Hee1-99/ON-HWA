@@ -22,7 +22,7 @@ export default async function ProductsPage() {
             쇼케이스
           </h1>
           <p className="text-gray-500 font-medium whitespace-pre-line">
-            사장님의 스타일을 알리기 위한 꽃다발 포트폴리오{"\n"}꽃다발에 이야기를 불어넣어 보세요
+            전문 큐레이터의 시선으로 담아낸{"\n"}사장님만의 스타일 넘치는 꽃다발 포트폴리오
           </p>
         </div>
         <div className="flex items-end gap-3">

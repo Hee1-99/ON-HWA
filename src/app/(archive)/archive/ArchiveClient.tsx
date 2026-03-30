@@ -25,11 +25,14 @@ export default function ArchiveClient({
   initialArchives,
   myRequests,
   userId,
+  role = "general",
 }: {
   initialArchives: Archive[];
   myRequests: CustomRequest[];
   userId: string;
+  role?: "florist" | "general";
 }) {
+  const isFlorist = role === "florist";
   const [archives, setArchives] = useState<Archive[]>(initialArchives);
   const [requests] = useState<CustomRequest[]>(myRequests);
   const [isSaving, setIsSaving] = useState(false);
@@ -71,21 +74,24 @@ export default function ArchiveClient({
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Action Banner */}
-      <div className="w-full bg-[var(--color-primary)] text-white rounded-2xl p-6 sm:p-8 flex items-center justify-between shadow-md mb-2">
-        <div className="flex flex-col gap-1">
-          <h2 className="font-outfit text-xl sm:text-2xl font-semibold">새로운 꽃다발이 필요한가요?</h2>
-          <p className="text-sm opacity-80">AI 큐레이터가 개인 맞춤형 꽃 구성을 추천드립니다.</p>
+      {/* Action Banner — florist에게는 숨김 */}
+      {!isFlorist && (
+        <div className="w-full bg-[var(--color-primary)] text-white rounded-2xl p-6 sm:p-8 flex items-center justify-between shadow-md mb-2">
+          <div className="flex flex-col gap-1">
+            <h2 className="font-outfit text-xl sm:text-2xl font-semibold">새로운 꽃다발이 필요한가요?</h2>
+            <p className="text-sm opacity-80">AI 큐레이터가 개인 맞춤형 꽃 구성을 추천드립니다.</p>
+          </div>
+          <Link 
+            href="/archive/new-order" 
+            className="flex items-center gap-2 bg-[var(--warm-rose)] text-white px-5 py-3 rounded-xl font-bold text-sm shadow-sm hover:opacity-90 hover:scale-[1.02] transition-all whitespace-nowrap"
+          >
+            <Plus className="w-4 h-4" /> 맞춤 주문하기
+          </Link>
         </div>
-        <Link 
-          href="/archive/new-order" 
-          className="flex items-center gap-2 bg-[var(--warm-rose)] text-white px-5 py-3 rounded-xl font-bold text-sm shadow-sm hover:opacity-90 hover:scale-[1.02] transition-all whitespace-nowrap"
-        >
-          <Plus className="w-4 h-4" /> 맞춤 주문하기
-        </Link>
-      </div>
+      )}
 
-      {requests.length > 0 && (
+      {/* 맞춤 주문 목록 — florist에게는 숨김 */}
+      {!isFlorist && requests.length > 0 && (
         <div className="flex flex-col gap-4 mt-6">
           <div className="flex items-center justify-between">
             <h1 className="font-outfit text-2xl font-semibold text-[var(--color-primary)]">내 맞춤 주문</h1>

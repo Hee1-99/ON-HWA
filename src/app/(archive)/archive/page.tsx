@@ -11,6 +11,8 @@ export default async function ArchivePage() {
 
   if (!user) redirect("/login");
 
+  const role = (user.user_metadata?.role ?? "general") as "florist" | "general";
+
   return (
     <div className="min-h-screen bg-[var(--color-bg-default)]">
       <header className="h-header px-6 flex items-center justify-between border-b border-[var(--color-border)] bg-white sticky top-0 z-50">
@@ -24,7 +26,7 @@ export default async function ArchivePage() {
       </header>
       <main className="max-w-4xl mx-auto px-4 py-10">
         <Suspense fallback={<ArchiveSkeleton />}>
-          <ArchiveData userId={user.id} />
+          <ArchiveData userId={user.id} role={role} />
         </Suspense>
       </main>
     </div>
@@ -44,20 +46,23 @@ function ArchiveSkeleton() {
   );
 }
 
-async function ArchiveData({ userId }: { userId: string }) {
+async function ArchiveData({ userId, role }: { userId: string; role: "florist" | "general" }) {
   const admin = createAdminClient();
 
+  // florist는 맞춤 주문 기능이 없으므로 custom_requests 조회 생략
   const [{ data: archives }, { data: myRequests }] = await Promise.all([
     admin
       .from("archives")
       .select("*")
       .eq("visitor_id", userId)
       .order("created_at", { ascending: false }),
-    admin
-      .from("custom_requests")
-      .select("*")
-      .eq("buyer_id", userId)
-      .order("created_at", { ascending: false }),
+    role === "general"
+      ? admin
+          .from("custom_requests")
+          .select("*")
+          .eq("buyer_id", userId)
+          .order("created_at", { ascending: false })
+      : Promise.resolve({ data: [], error: null }),
   ]);
 
   return (
@@ -65,6 +70,7 @@ async function ArchiveData({ userId }: { userId: string }) {
       initialArchives={archives ?? []}
       myRequests={myRequests ?? []}
       userId={userId}
+      role={role}
     />
   );
 }

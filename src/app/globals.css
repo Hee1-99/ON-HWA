@@ -369,3 +369,82 @@ body {
   text-decoration: underline; text-underline-offset: 3px;
 }
 .share-done-reset--center { align-self: center; }
+
+/* ── PhotoCardBuilder — html2canvas용 hex 전용 스타일 ───────
+   Tailwind v4 색상은 oklch()를 생성하므로 html2canvas가 파싱 불가.
+   캡처 영역 내 모든 색상을 hex/rgba로 명시합니다.           */
+.pc-canvas {
+  background: #ffffff;
+  border: 1px solid #F0DDD5;
+  border-radius: 24px;
+  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 3/4;
+}
+.pc-photo-area {
+  width: 100%;
+  flex: 1;
+  border-radius: 16px;
+  background-color: #f3f4f6;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+}
+.pc-photo-area img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+}
+.pc-empty-placeholder {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background-color: #f9fafb;
+  border: 2px dashed #e5e7eb;
+  margin: 8px; border-radius: 12px;
+  color: #9a7068;
+}
+.pc-empty-placeholder p {
+  font-size: 14px; font-weight: 700; opacity: 0.7;
+}
+.pc-file-input {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  opacity: 0; cursor: pointer; z-index: 10;
+}
+.pc-gradient-overlay {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 50%;
+  background: linear-gradient(to top, rgba(74,46,43,0.8), transparent);
+  pointer-events: none;
+}
+.pc-text-overlay {
+  position: absolute; bottom: 16px; left: 20px; right: 20px;
+  display: flex; flex-direction: column; z-index: 20; pointer-events: none;
+}
+.pc-flower-name {
+  color: #ffffff;
+  font-family: 'Outfit', sans-serif; font-weight: 700;
+  font-size: 24px; letter-spacing: 0.05em;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+  margin-bottom: 4px; word-break: keep-all;
+}
+.pc-date {
+  color: rgba(255,255,255,0.9);
+  font-size: 12px; font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+.pc-logo-bar {
+  height: 56px; display: flex;
+  align-items: center; justify-content: center;
+  width: 100%; padding-top: 4px; flex-shrink: 0;
+}
+.pc-logo-text {
+  font-family: 'Outfit', sans-serif; font-weight: 700;
+  color: #4A2E2B; font-size: 18px; letter-spacing: 0.2em;
+}

@@ -119,55 +119,39 @@ export default function PhotoCardBuilder({ bouquetId, flowerName }: PhotoCardBui
   return (
     <div className="flex flex-col items-center gap-6 w-full max-w-sm mx-auto">
 
-      {/* 캔버스 (html2canvas 캡처 영역) */}
-      <div
-        ref={cardRef}
-        className="w-full aspect-[3/4] bg-[var(--warm-card)] rounded-[24px] shadow-xl border border-[var(--warm-border)] p-4 flex flex-col items-center relative overflow-hidden"
-      >
-        {/* 사진 영역 */}
-        <div className="w-full flex-1 rounded-[16px] bg-gray-100 overflow-hidden relative shadow-inner">
+      {/* 캔버스 — html2canvas 캡처 영역. 색상은 globals.css .pc-* 클래스로 hex 고정 */}
+      <div ref={cardRef} className="pc-canvas">
+        <div className="pc-photo-area">
           {photo ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={photo} alt="Uploaded" className="w-full h-full object-cover" />
+            <img src={photo} alt="Uploaded" />
           ) : (
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-[var(--warm-muted)] bg-gray-50 border-2 border-dashed border-gray-200 m-2 rounded-xl">
-              <ImageIcon className="w-8 h-8 mb-2 opacity-50" />
-              <p className="text-sm font-bold opacity-70">여기를 눌러 추억 업로드</p>
+            <div className="pc-empty-placeholder">
+              <ImageIcon width={32} height={32} style={{ marginBottom: 8, opacity: 0.5 }} />
+              <p>여기를 눌러 추억 업로드</p>
             </div>
           )}
 
-          {/* 숨겨진 파일 input */}
           <input
             type="file"
             accept="image/*"
             onChange={handlePhotoUpload}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+            className="pc-file-input"
             title="Upload Photo"
           />
 
-          {/* 하단 그라데이션 오버레이 */}
-          {photo && (
-            <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-[#4A2E2B]/80 to-transparent pointer-events-none" />
-          )}
+          {photo && <div className="pc-gradient-overlay" />}
 
-          {/* 사진 위 텍스트 */}
           {photo && (
-            <div className="absolute bottom-4 left-5 right-5 flex flex-col z-20 pointer-events-none">
-              <h2 className="text-white font-outfit font-bold text-2xl tracking-wide drop-shadow-md mb-1 break-keep">
-                {flowerName}
-              </h2>
-              <p className="text-white/90 text-sm font-medium drop-shadow uppercase tracking-widest">
-                {today}
-              </p>
+            <div className="pc-text-overlay">
+              <h2 className="pc-flower-name">{flowerName}</h2>
+              <p className="pc-date">{today}</p>
             </div>
           )}
         </div>
 
-        {/* 하단 로고 */}
-        <div className="h-14 flex items-center justify-center w-full pt-1 shrink-0">
-          <span className="font-outfit font-bold text-[var(--warm-text)] text-lg tracking-[0.2em]">
-            ON:HWA
-          </span>
+        <div className="pc-logo-bar">
+          <span className="pc-logo-text">ON:HWA</span>
         </div>
       </div>
 

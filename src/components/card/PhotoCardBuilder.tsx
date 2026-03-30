@@ -48,16 +48,29 @@ export default function PhotoCardBuilder({ bouquetId, flowerName }: PhotoCardBui
     try {
       const result = await generateCardBlob();
       if (!result) return;
-      const { dataUrl } = result;
+      const { blob } = result;
 
+      // 데이터 URL 대신 Blob URL 사용 — 모바일에서 빈 페이지 방지
+      const blobUrl = URL.createObjectURL(blob);
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
       if (isIOS) {
-        window.open(dataUrl, "_blank");
+        // iOS: 새 탭에서 이미지 열기 → 길게 눌러 사진 저장
+        const tab = window.open(blobUrl, "_blank");
+        if (!tab) {
+          // 팝업 차단된 경우 같은 탭에서 열기
+          window.location.href = blobUrl;
+        }
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
       } else {
+        // Android / 데스크톱: anchor download
         const link = document.createElement("a");
         link.download = `ONHWA_Photocard_${Date.now()}.jpg`;
-        link.href = dataUrl;
+        link.href = blobUrl;
+        document.body.appendChild(link);
         link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
       }
     } catch (error: any) {
       console.error("카드 생성 실패:", error);

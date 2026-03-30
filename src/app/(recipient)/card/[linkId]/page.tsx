@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import UnboxingReveal from "./UnboxingReveal";
-import PhotoUploadSection from "./PhotoUploadSection";
+import PhotoCardBuilder from "@/components/card/PhotoCardBuilder";
 import GiftShareSection from "./GiftShareSection";
 
 interface Props {
@@ -15,7 +15,7 @@ export default async function RecipientCardPage({ params }: Props) {
 
   const { data: bouquet } = await supabase
     .from("bouquets")
-    .select("ai_name, ai_story, original_img_url, link_id")
+    .select("id, ai_name, ai_story, original_img_url, link_id")
     .eq("link_id", linkId)
     .in("status", ["sent", "archived"])
     .single();
@@ -37,15 +37,18 @@ export default async function RecipientCardPage({ params }: Props) {
 
       <main className="flex-1 max-w-md mx-auto w-full px-5 py-10 flex flex-col gap-10">
 
-        {/* ① 언박싱: blur 해제 + 타이핑 이름 + 시적 서사 + CTA */}
+        {/* ① 언박싱: blur 해제 + 타이핑 이름 + 시적 이야기 + CTA */}
         <UnboxingReveal
           bouquetName={bouquet.ai_name ?? "이름 없는 꽃다발"}
           bouquetStory={bouquet.ai_story ?? ""}
           imageUrl={bouquet.original_img_url ?? ""}
         />
 
-        {/* ② 사진 업로드 → 포토카드 생성 */}
-        <PhotoUploadSection />
+        {/* ② 사진 업로드 → 포토카드 생성 + 아카이빙 */}
+        <PhotoCardBuilder
+          bouquetId={bouquet.id}
+          flowerName={bouquet.ai_name ?? "이름 없는 꽃다발"}
+        />
 
         {/* 구분선 */}
         <div className="flex items-center gap-3">
@@ -66,7 +69,7 @@ export default async function RecipientCardPage({ params }: Props) {
 
       <footer className="py-8 text-center">
         <p className="recipient-footer-text text-xs">
-          © 2026 ON:HWA — 꽃의 서사를 켜다
+          © 2026 ON:HWA — 꽃의 이야기를 켜다
         </p>
       </footer>
 

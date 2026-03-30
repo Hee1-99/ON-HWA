@@ -21,7 +21,9 @@ export default async function ProductsPage() {
           <h1 className="text-3xl font-bold font-outfit text-[var(--color-primary)] flex items-center gap-3">
             쇼케이스
           </h1>
-          <p className="text-gray-500 font-medium">꽃다발 AI 네이밍 및 판매 상태 관리</p>
+          <p className="text-gray-500 font-medium whitespace-pre-line">
+            사장님의 스타일을 알리기 위한 꽃다발 포트폴리오{"\n"}꽃다발에 이야기를 불어넣어 보세요
+          </p>
         </div>
         <div className="flex items-end gap-3">
           <Link

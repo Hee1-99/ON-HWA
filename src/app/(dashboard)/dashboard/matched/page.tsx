@@ -23,7 +23,7 @@ export default async function MatchedOrdersPage() {
           <HeartHandshake className="w-8 h-8 text-indigo-500" />
           매칭된 커스텀 주문
         </h1>
-        <p className="text-gray-500 font-medium">고객님이 채택한 견적 리스트입니다. 꽃다발 제작 후 서사를 불어넣어 등록하세요!</p>
+        <p className="text-gray-500 font-medium">고객님이 채택한 견적 리스트입니다. 꽃다발 제작 후 이야기를 불어넣어 등록하세요!</p>
       </div>
 
       <Suspense fallback={<MatchedSkeleton />}>

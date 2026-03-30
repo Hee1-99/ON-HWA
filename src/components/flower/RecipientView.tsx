@@ -31,7 +31,7 @@ export default function RecipientView({ bouquet }: { bouquet: any }) {
     return () => clearTimeout(startDelay);
   }, [bouquet.ai_name]);
 
-  // 서사 내 강조할 문구를 임의로 em 태그 처리하는 헬퍼 함수 (고객 CSS에 맞춤)
+  // 이야기 내 강조할 문구를 임의로 em 태그 처리하는 헬퍼 함수 (고객 CSS에 맞춤)
   const formatStory = (story: string) => {
     if (!story) return "";
     // 예시: 첫 문장이나 특정 키워드를 강조할 수 있지만, 우선은 줄바꿈만 정상 렌더링하도록 처리
@@ -97,7 +97,7 @@ export default function RecipientView({ bouquet }: { bouquet: any }) {
         </div>
       </div>
 
-      {/* 시적 서사 */}
+      {/* 시적 이야기 */}
       <div className="px-4 mt-2">
         <div className="unboxing-story-section shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500 [animation-fill-mode:both] relative">
           <div className="unboxing-story-deco text-[var(--warm-rose)]">✧</div>
@@ -113,7 +113,7 @@ export default function RecipientView({ bouquet }: { bouquet: any }) {
              >
                <MessageCircle className="w-4 h-4" /> 꽃 이야기 카톡으로 전달하기
              </button>
-             <p className="text-[10px] text-gray-400 mt-3">소중한 분에게 이 서사를 함께 보내보세요.</p>
+             <p className="text-[10px] text-gray-400 mt-3">소중한 분에게 이 이야기를 함께 보내보세요.</p>
           </div>
         </div>
       </div>

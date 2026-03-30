@@ -167,7 +167,7 @@ export default function NewCustomOrderPage() {
               className="mt-4 w-full bg-[var(--color-primary)] text-white py-4 rounded-xl font-bold hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-70 disabled:cursor-wait"
             >
               {loading ? (
-                <> <Loader2 className="w-5 h-5 animate-spin" /> AI가 꽃의 서사를 찾는 중... </>
+                <> <Loader2 className="w-5 h-5 animate-spin" /> AI가 꽃의 이야기를 찾는 중... </>
               ) : (
                 <> <Sparkles className="w-5 h-5" /> AI 추천 받기 </>
               )}

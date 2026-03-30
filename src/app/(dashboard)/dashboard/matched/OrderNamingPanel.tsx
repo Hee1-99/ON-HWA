@@ -125,7 +125,7 @@ export default function OrderNamingPanel({ quoteId, aiFlowerRecommendation, quot
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-indigo-500" />
-          <span className="font-bold text-indigo-900">서사 불어넣기</span>
+          <span className="font-bold text-indigo-900">이야기 불어넣기</span>
         </div>
         <button type="button" onClick={handleClose} title="닫기" className="text-gray-400 hover:text-gray-600 transition-colors">
           <X className="w-5 h-5" />

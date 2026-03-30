@@ -109,7 +109,7 @@ export default function MatchedClient({ acceptedQuotes }: { acceptedQuotes: any[
                   }`}
                 >
                   <Sparkles className="w-4 h-4" />
-                  {isActive ? "닫기" : saved ? "서사 확인하기" : "서사 불어넣기"}
+                  {isActive ? "닫기" : saved ? "이야기 확인하기" : "이야기 불어넣기"}
                 </button>
               </div>
             </div>

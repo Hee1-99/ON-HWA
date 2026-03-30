@@ -220,7 +220,7 @@ export default function BouquetUploader() {
           {/* Tones Area */}
           <div className="flex flex-col gap-2 sm:w-1/3">
             <label className="text-sm font-bold text-[var(--color-primary)] flex items-center gap-2">
-              <MessageCircleHeart className="w-4 h-4" /> 서사 문체
+              <MessageCircleHeart className="w-4 h-4" /> 이야기 문체
             </label>
             <div className="flex flex-col gap-2">
               {TONES.map((tone) => (

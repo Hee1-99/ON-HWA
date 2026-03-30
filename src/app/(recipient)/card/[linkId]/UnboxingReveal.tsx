@@ -89,7 +89,7 @@ export default function UnboxingReveal({
         </motion.div>
       )}
 
-      {/* ── 시적 서사 ──────────────────────────────────────── */}
+      {/* ── 시적 이야기 ──────────────────────────────────────── */}
       <AnimatePresence>
         {nameDone && bouquetStory && (
           <motion.div

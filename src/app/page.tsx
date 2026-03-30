@@ -1,5 +1,6 @@
-import { Flower2, Sparkles, Camera, ArrowRight, ShieldCheck } from "lucide-react";
+import { Flower2, Sparkles, ArrowRight, Inbox, Archive } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import LogoutButton from "@/components/LogoutButton";
 
@@ -44,30 +45,46 @@ export default async function LandingPage() {
       <main className="flex-1">
 
         {/* ── Hero ─────────────────────────────────────────────── */}
-        <section className="w-full py-24 md:py-36 lg:py-48 bg-[var(--color-bg-light)]">
-          <div className="max-w-5xl mx-auto px-8">
-            <div className="flex flex-col items-start gap-8">
+        <section className="relative w-full h-[calc(100dvh-4rem)] overflow-hidden flex items-center bg-[#FDFCFB]">
 
-              <span className="text-xs font-medium uppercase tracking-widest text-[var(--color-secondary)] border border-[var(--color-border)] px-3 py-1">
-                AI 기반 감성 네이밍 플랫폼
+          {/* Right half: image contained at natural size, no upscaling */}
+          <div className="absolute right-0 top-0 bottom-0 w-1/2 pointer-events-none select-none">
+            <Image
+              src="/images/hero-bg-center.png"
+              alt="ON:HWA Hero Background"
+              fill
+              priority
+              unoptimized={true}
+              className="object-contain object-center"
+            />
+          </div>
+
+          {/* Gradient: smooth fade from left background color into image */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#FDFCFB] via-[#FDFCFB]/90 to-transparent pointer-events-none" />
+
+          {/* Text Content */}
+          <div className="relative z-10 max-w-5xl mx-auto px-8 w-full">
+            <div className="flex flex-col items-start gap-10 max-w-2xl">
+
+              <span className="text-xs font-medium tracking-widest text-[var(--color-secondary)] border border-[var(--color-border)] px-3 py-1">
+                꽃다발 AI 네이밍 서비스
               </span>
 
-              <h1 className="font-outfit text-5xl sm:text-6xl lg:text-7xl font-semibold leading-tight text-[var(--color-primary)] tracking-tight">
-                꽃의 서사를{" "}
-                <span className="bg-accent px-2">켜다</span>
-                <br />
-                ON:HWA
+              <h1 className="font-outfit text-4xl sm:text-5xl lg:text-[3.6rem] font-semibold leading-tight text-[var(--color-primary)] whitespace-nowrap">
+                당신의 꽃에,<br />
+                이야기를 불어넣습니다
               </h1>
 
-              <p className="max-w-xl text-base leading-relaxed text-[var(--color-secondary)]">
-                AI가 선물하는 꽃의 이름과 이야기.<br />
-                시들지 않는 추억을 디지털 포토카드로 간직하세요.
+              <p className="max-w-lg text-base leading-loose text-[var(--color-secondary)]">
+                꽃 한 다발이 언어가 되는 순간이 있습니다.<br />
+                온:화는 AI로 꽃다발에 고유한 이름과 이야기를 새기고,<br />
+                그 기억을 시들지 않는 형태로 간직합니다.
               </p>
 
-              <div className="flex items-center gap-4 mt-2">
+              <div className="flex items-center gap-4">
                 <Link
                   href="/login"
-                  className="inline-flex items-center gap-2 bg-[var(--color-primary)] text-white text-sm font-medium uppercase tracking-wide px-8 py-3 hover:opacity-80 transition-opacity"
+                  className="inline-flex items-center gap-2 bg-[var(--color-primary)] text-white text-sm font-medium uppercase tracking-wide px-8 py-3 hover:opacity-80 transition-all shadow-lg hover:shadow-xl"
                 >
                   시작하기 <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -87,74 +104,124 @@ export default async function LandingPage() {
         <section id="features" className="w-full py-20 md:py-32 bg-white">
           <div className="max-w-5xl mx-auto px-8">
 
-            <div className="mb-12 flex items-center gap-4">
+            <div className="mb-16 flex items-center gap-4">
               <span className="h-px flex-1 bg-[var(--color-border)]" />
               <span className="text-xs uppercase tracking-widest font-medium text-[var(--color-secondary)]">
-                핵심 기능
+                온:화가 하는 일
               </span>
               <span className="h-px flex-1 bg-[var(--color-border)]" />
             </div>
 
-            <div className="grid gap-px bg-[var(--color-border)] sm:grid-cols-3">
+            <div className="grid gap-px sm:grid-cols-2 bg-[var(--color-border)]">
 
-              <div className="feature-card bg-white p-8 flex flex-col gap-5 transition-colors duration-300">
-                <div className="bg-accent w-10 h-10 flex items-center justify-center">
-                  <Sparkles className="h-5 w-5 text-[var(--color-primary)]" />
+              {/* ── 사장님 (플로리스트) 컬럼 ── */}
+              <div className="bg-[var(--color-bg-light)] flex flex-col">
+
+                {/* 역할 레이블 */}
+                <div className="px-8 pt-8 pb-5 border-b border-[var(--color-border)] flex items-center gap-3">
+                  <Flower2 className="h-4 w-4 text-[var(--color-primary)]" />
+                  <span className="text-xs font-semibold uppercase tracking-widest text-[var(--color-primary)]">
+                    플로리스트 (사장님)
+                  </span>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <h3 className="font-outfit text-base font-semibold text-[var(--color-primary)]">
-                    AI 감성 네이밍
-                  </h3>
-                  <p className="text-sm leading-relaxed text-[var(--color-secondary)]">
-                    이미지를 분석하여 꽃다발에 어울리는 시적인 이름과 스토리를 자동 생성합니다.
-                  </p>
+
+                {/* 기능 1 */}
+                <div className="p-8 flex flex-col gap-4 border-b border-[var(--color-border)]">
+                  <div className="bg-[var(--color-primary)] w-10 h-10 flex items-center justify-center">
+                    <Inbox className="h-4 w-4 text-white" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <h3 className="font-outfit text-base font-semibold text-[var(--color-primary)]">
+                      커스텀 꽃다발 주문 수신
+                    </h3>
+                    <p className="text-sm leading-relaxed text-[var(--color-secondary)]">
+                      구매자의 주문 요청을 확인하고 견적을 제안합니다. 채택된 주문에만 진행하면 됩니다.
+                    </p>
+                  </div>
                 </div>
+
+                {/* 기능 2 */}
+                <div className="p-8 flex flex-col gap-4">
+                  <div className="bg-[var(--color-primary)] w-10 h-10 flex items-center justify-center">
+                    <Sparkles className="h-4 w-4 text-white" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <h3 className="font-outfit text-base font-semibold text-[var(--color-primary)]">
+                      AI 꽃다발 네이밍
+                    </h3>
+                    <p className="text-sm leading-relaxed text-[var(--color-secondary)]">
+                      완성된 꽃다발 사진을 업로드하면 AI가 꽃말과 분위기를 읽어 고유한 이름과 서사를 생성합니다. 받는 이에게 이름 붙여진 꽃을 전하세요.
+                    </p>
+                  </div>
+                </div>
+
               </div>
 
-              <div className="feature-card bg-white p-8 flex flex-col gap-5 transition-colors duration-300">
-                <div className="bg-accent w-10 h-10 flex items-center justify-center">
-                  <Camera className="h-5 w-5 text-[var(--color-primary)]" />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <h3 className="font-outfit text-base font-semibold text-[var(--color-primary)]">
-                    디지털 포토카드
-                  </h3>
-                  <p className="text-sm leading-relaxed text-[var(--color-secondary)]">
-                    받은 꽃을 촬영하여 나만의 감성 포토카드로 합성하고 영구히 보관하세요.
-                  </p>
-                </div>
-              </div>
+              {/* ── 구매자 컬럼 ── */}
+              <div className="bg-white flex flex-col">
 
-              <div className="feature-card bg-white p-8 flex flex-col gap-5 transition-colors duration-300">
-                <div className="bg-accent w-10 h-10 flex items-center justify-center">
-                  <ShieldCheck className="h-5 w-5 text-[var(--color-primary)]" />
+                {/* 역할 레이블 */}
+                <div className="px-8 pt-8 pb-5 border-b border-[var(--color-border)] flex items-center gap-3">
+                  <Flower2 className="h-4 w-4 text-[var(--color-primary)]" />
+                  <span className="text-xs font-semibold uppercase tracking-widest text-[var(--color-secondary)]">
+                    구매자
+                  </span>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <h3 className="font-outfit text-base font-semibold text-[var(--color-primary)]">
-                    안전한 아카이빙
-                  </h3>
-                  <p className="text-sm leading-relaxed text-[var(--color-secondary)]">
-                    Supabase의 안전한 저장소로 소중한 기록을 언제 어디서나 확인할 수 있습니다.
-                  </p>
+
+                {/* 기능 1 */}
+                <div className="p-8 flex flex-col gap-4 border-b border-[var(--color-border)]">
+                  <div className="bg-accent w-10 h-10 flex items-center justify-center">
+                    <Sparkles className="h-4 w-4 text-[var(--color-primary)]" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <h3 className="font-outfit text-base font-semibold text-[var(--color-primary)]">
+                      AI 커스텀 꽃다발 주문
+                    </h3>
+                    <p className="text-sm leading-relaxed text-[var(--color-secondary)]">
+                      상황과 예산을 입력하면 AI가 꽃 구성을 제안하고, 여러 플로리스트의 견적을 비교해 고를 수 있습니다.
+                    </p>
+                  </div>
                 </div>
+
+                {/* 기능 2 */}
+                <div className="p-8 flex flex-col gap-4">
+                  <div className="bg-accent w-10 h-10 flex items-center justify-center">
+                    <Archive className="h-4 w-4 text-[var(--color-primary)]" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <h3 className="font-outfit text-base font-semibold text-[var(--color-primary)]">
+                      포토카드 아카이빙
+                    </h3>
+                    <p className="text-sm leading-relaxed text-[var(--color-secondary)]">
+                      받은 꽃을 찍어 디지털 포토카드로 만들고 영구 보관합니다. 꽃의 이름과 이야기가 카드 안에 함께 담깁니다.
+                    </p>
+                  </div>
+                </div>
+
               </div>
 
             </div>
+
           </div>
         </section>
 
         {/* ── CTA Banner ───────────────────────────────────────── */}
         <section className="w-full py-20 bg-[var(--color-primary)]">
-          <div className="max-w-5xl mx-auto px-8 flex flex-col sm:flex-row items-center justify-between gap-8">
-            <p className="font-outfit text-2xl sm:text-3xl font-semibold text-white leading-snug">
-              지금 바로 꽃의 서사를<br />
-              <span className="text-accent">켜보세요.</span>
-            </p>
+          <div className="max-w-5xl mx-auto px-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8">
+            <div className="flex flex-col gap-3">
+              <p className="font-outfit text-2xl sm:text-3xl font-semibold text-white leading-snug">
+                꽃 한 다발이 언어가 되는 순간,<br />
+                <span className="text-accent">온:화가 함께합니다.</span>
+              </p>
+              <p className="text-sm text-white/60 leading-relaxed">
+                사장님이시라면 — 꽃다발을 AI와 함께 쇼케이스에 채워보세요.
+              </p>
+            </div>
             <Link
               href="/login"
-              className="inline-flex items-center gap-2 bg-accent text-[var(--color-primary)] text-sm font-semibold uppercase tracking-wide px-8 py-3 hover:opacity-80 transition-opacity whitespace-nowrap"
+              className="inline-flex items-center gap-2 bg-white text-[var(--color-primary)] text-sm font-semibold uppercase tracking-wide px-8 py-3 hover:opacity-80 transition-opacity whitespace-nowrap flex-shrink-0"
             >
-              플로리스트로 시작하기 <ArrowRight className="h-4 w-4" />
+              시작하기 <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </section>
@@ -166,9 +233,7 @@ export default async function LandingPage() {
         <div className="max-w-5xl mx-auto px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Flower2 className="h-4 w-4 text-[var(--color-secondary)]" />
-            <span className="text-xs text-[var(--color-secondary)]">
-              © 2026 ON:HWA. All rights reserved.
-            </span>
+            <span className="text-xs text-[var(--color-secondary)]">© 2026 ON:HWA. All rights reserved.</span>
           </div>
           <nav className="flex gap-6">
             <Link className="text-xs text-[var(--color-secondary)] hover:text-[var(--color-primary)] uppercase tracking-wide transition-colors" href="#">

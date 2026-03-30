@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { saveArchiveRecord } from "@/app/actions/archiveActions";
 import { Loader2, ImageIcon, Plus } from "lucide-react";
 import Link from "next/link";
+
 
 interface Archive {
   id: string;
@@ -48,28 +48,16 @@ export default function ArchiveClient({
     }
 
     setIsSaving(true);
-    const supabase = createClient();
-    const fileName = `${parsed.bouquetId}/${Date.now()}.jpg`;
 
-    fetch(parsed.dataUrl)
-      .then((r) => r.blob())
-      .then(async (blob) => {
-        const { error: uploadError } = await supabase.storage
-          .from("archives")
-          .upload(fileName, blob, { contentType: "image/jpeg", upsert: false });
-        if (uploadError) throw new Error(uploadError.message);
-
-        const { data: { publicUrl } } = supabase.storage
-          .from("archives")
-          .getPublicUrl(fileName);
-
-        const result = await saveArchiveRecord(parsed.bouquetId, publicUrl, userId);
-        if (!result.success) throw new Error(result.error ?? "DB 저장 실패");
+    // 서버 액션(adminClient)으로 업로드 + DB insert → RLS 완전 우회
+    saveArchiveRecord(parsed.bouquetId, parsed.dataUrl, userId)
+      .then((result) => {
+        if (!result.success) throw new Error(result.error ?? "저장 실패");
 
         setArchives((prev) => [
           {
             id: Date.now().toString(),
-            card_img_url: publicUrl,
+            card_img_url: result.url ?? parsed.dataUrl,
             created_at: new Date().toISOString(),
             bouquet_id: parsed.bouquetId,
           },

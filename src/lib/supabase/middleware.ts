@@ -47,7 +47,13 @@ export async function updateSession(request: NextRequest) {
   // Authenticated: redirect away from login
   if (path === '/login') {
     const url = request.nextUrl.clone()
-    url.pathname = role === 'general' ? '/archive' : '/dashboard'
+    const fromParam = request.nextUrl.searchParams.get('from')
+    // ?from=archive 이면 역할 무관하게 /archive로 (pendingArchive 처리)
+    if (fromParam === 'archive') {
+      url.pathname = '/archive'
+    } else {
+      url.pathname = role === 'general' ? '/archive' : '/dashboard'
+    }
     return NextResponse.redirect(url)
   }
 
@@ -58,11 +64,16 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  if (role === 'florist' && path.startsWith('/archive')) {
+  // Role-based cross-protection (pendingArchive flow 예외: florist도 /archive 허용)
+  if (role === 'general' && path.startsWith('/dashboard')) {
     const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
+    url.pathname = '/archive'
     return NextResponse.redirect(url)
   }
+
+  // florist가 /archive에 접근하는 경우는
+  // pendingArchive(포토카드 아카이빙) 처리를 위해 허용
+  // → /archive 페이지 자체에서 로직 처리 후 자연스럽게 이탈
 
   return supabaseResponse
 }

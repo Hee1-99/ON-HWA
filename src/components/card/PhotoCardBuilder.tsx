@@ -118,30 +118,21 @@ export default function PhotoCardBuilder({ bouquetId, flowerName }: PhotoCardBui
     try {
       const result = await generateCardBlob();
       if (!result) { setIsArchiving(false); return; }
-      const { blob, dataUrl } = result;
+      const { dataUrl } = result;
 
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
 
-      if (!user || user.user_metadata?.role !== "general") {
+      // 비로그인 → sessionStorage에 dataUrl 저장 후 로그인 페이지로
+      if (!user) {
         sessionStorage.setItem("pendingArchive", JSON.stringify({ dataUrl, bouquetId }));
         router.push("/login?from=archive");
         return;
       }
 
-      const fileName = `${bouquetId}/${Date.now()}.jpg`;
-      const { error: uploadError } = await supabase.storage
-        .from("archives")
-        .upload(fileName, blob, { contentType: "image/jpeg", upsert: false });
-
-      if (uploadError) throw new Error("Storage 업로드 실패: " + uploadError.message);
-
-      const { data: { publicUrl } } = supabase.storage
-        .from("archives")
-        .getPublicUrl(fileName);
-
-      const dbResult = await saveArchiveRecord(bouquetId, publicUrl, user.id);
-      if (!dbResult.success) throw new Error("DB 저장 실패: " + dbResult.error);
+      // 로그인된 경우 → 서버 액션으로 업로드 + DB 저장 (RLS 우회)
+      const dbResult = await saveArchiveRecord(bouquetId, dataUrl, user.id);
+      if (!dbResult.success) throw new Error("저장 실패: " + dbResult.error);
 
       setArchiveMsg("포토카드가 아카이빙되었습니다! 내 아카이브에서 확인하세요.");
     } catch (error: any) {
